@@ -1,39 +1,37 @@
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useWeb3 } from '../contexts/Web3Context'
 import { Image, Package, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react'
 
-// NFT Collections data
-const [nftCollections, setNFTCollections] = useState([])
-const [loading, setLoading] = useState(true)
-
-const fetchNFTCollections = async () => {
-  try {
-    setLoading(true)
-    const response = await fetch('/api/nfts')
-    if (response.ok) {
-      const data = await response.json()
-      setNFTCollections(data.data || [])
-    }
-  } catch (error) {
-    console.error('Failed to fetch NFT collections:', error)
-  } finally {
-    setLoading(false)
-  }
-}
-
-React.useEffect(() => {
-  fetchNFTCollections()
-}, [])
-
 const NFTVault: React.FC = () => {
   const { t } = useLanguage()
   const { isConnected } = useWeb3()
   const [selectedNFT, setSelectedNFT] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [nftCollections, setNFTCollections] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchNFTCollections = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/nfts')
+      if (response.ok) {
+        const data = await response.json()
+        setNFTCollections(data.data || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch NFT collections:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchNFTCollections()
+  }, [])
 
   const handleDeposit = async (nftId: string) => {
     setIsLoading(true)
