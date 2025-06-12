@@ -48,7 +48,7 @@ const NeonCardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-xl font-bold leading-none tracking-tight gradient-text",
+      "text-xl font-bold leading-none tracking-tight bg-gradient-to-r from-purple-400 via-cyan-400 to-fuchsia-400 bg-clip-text text-transparent",
       className
     )}
     {...props}

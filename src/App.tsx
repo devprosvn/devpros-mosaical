@@ -20,7 +20,7 @@ function App() {
     <LanguageProvider>
       <Web3Provider>
         <Router>
-          <div className="dark min-h-screen bg-background text-foreground">
+          <div className="dark min-h-screen bg-gray-900 text-gray-100">
             <Header />
             <main className="container mx-auto px-4 py-8">
               <Routes>

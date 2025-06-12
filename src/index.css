@@ -32,11 +32,11 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: rgb(55 65 81);
   }
   
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-gray-900 text-gray-100 font-sans;
     background: radial-gradient(ellipse at top, #0f0f23 0%, #020617 50%, #000000 100%);
     min-height: 100vh;
     font-family: 'Space Grotesk', system-ui, sans-serif;
