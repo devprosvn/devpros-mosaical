@@ -1,4 +1,3 @@
-
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ["class"],
@@ -8,6 +7,7 @@ export default {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
+  prefix: "",
   theme: {
     container: {
       center: true,
@@ -17,6 +17,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -51,43 +54,70 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Cyberpunk neon colors
         neon: {
-          purple: "#9945FF",
-          cyan: "#14F195",
-          pink: "#FF6EC7",
+          cyan: '#00FFFF',
+          purple: '#A259F7',
+          pink: '#FF006B',
+          green: '#00FF85',
+          blue: '#0080FF',
+          yellow: '#FFD700',
+        },
+        cyber: {
+          primary: '#A259F7',
+          secondary: '#00BFFF', 
+          accent: '#FF006B',
+          warning: '#FFD700',
+          danger: '#FF3366',
+          success: '#00FF85',
         }
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        '3xl': '1.875rem',
+        '4xl': '2rem',
+      },
+      backdropBlur: {
+        xs: '2px',
+      },
+      boxShadow: {
+        'glow': '0 0 20px rgba(168, 85, 247, 0.5)',
+        'glow-cyan': '0 0 20px rgba(0, 255, 255, 0.5)',
+        'glow-pink': '0 0 20px rgba(255, 0, 107, 0.5)',
+        'inner-glow': 'inset 0 2px 4px 0 rgba(255, 255, 255, 0.1)',
       },
       keyframes: {
         "accordion-down": {
-          from: { height: 0 },
+          from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: 0 },
+          to: { height: "0" },
         },
         glow: {
-          '0%, 100%': { boxShadow: '0 0 5px theme(colors.neon.purple)' },
-          '50%': { boxShadow: '0 0 20px theme(colors.neon.purple), 0 0 30px theme(colors.neon.purple)' },
+          '0%, 100%': { boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)' },
+          '50%': { boxShadow: '0 0 30px rgba(168, 85, 247, 0.8)' },
         },
-        shake: {
-          '0%, 100%': { transform: 'translateX(0)' },
-          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-2px)' },
-          '20%, 40%, 60%, 80%': { transform: 'translateX(2px)' },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        pulse: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        glow: "glow 2s ease-in-out infinite alternate",
-        shake: "shake 0.5s ease-in-out",
+        glow: 'glow 2s ease-in-out infinite alternate',
+        float: 'float 3s ease-in-out infinite',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 }
