@@ -22,6 +22,11 @@ function App() {
         <Router>
           <div className="dark min-h-screen bg-gray-900 text-gray-100">
             <Header />
+
+            <div className="glass-card neon-glow text-3xl text-center p-8 mt-8">
+              🚀 <span className="gradient-text text-shadow">Tailwind đang hoạt động!</span> 🚀
+              <button className="cyber-button mt-8">Neon Cyber Button</button>
+            </div>
             <main className="container mx-auto px-4 py-8">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
