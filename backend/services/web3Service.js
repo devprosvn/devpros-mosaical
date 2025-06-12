@@ -10,8 +10,9 @@ class Web3Service {
 
   async initWeb3() {
     try {
-      // Initialize provider
-      this.provider = new ethers.JsonRpcProvider(process.env.SAGA_RPC_URL)
+      // Initialize provider for devpros chainlet
+      const RPC_URL = process.env.SAGA_RPC_URL || 'https://devpros-2749656616387000-1.jsonrpc.sagarpc.io'
+      this.provider = new ethers.JsonRpcProvider(RPC_URL)
       
       // Test connection
       const network = await this.provider.getNetwork()
@@ -60,21 +61,32 @@ class Web3Service {
         "event Transfer(address indexed from, address indexed to, uint256 value)"
       ]
 
+      // Contract addresses on devpros chainlet
+      const CONTRACT_ADDRESSES = {
+        VAULT_CONTRACT: '0xB834ED9acF0C047251d37e7190edfc5631e9D7E8',
+        LOAN_MANAGER: '0x29679B0bED366e26468808dbBEfC7cBA65198DBd',
+        DPO_TOKEN: '0x59E25E5284AbCc195293D135b049a0daE96be7CA',
+        PRICE_ORACLE: '0xe7B8457F907bD96EEC025E587B3c3aaeeDd91078',
+        LIQUIDATION_MANAGER: '0x164a8437d9Bf146F76e87d4fabb5c6EaC10d2f8D',
+        INTEREST_RATE_MODEL: '0xede2E7d72E3Ba0BF6F22613E35C29f727379E381',
+        GOVERNANCE: '0xaA8e83D125bff13078eeB220eBee0B2410ef3Bf7',
+      }
+
       // Initialize contract instances
       this.contracts.vault = new ethers.Contract(
-        process.env.VAULT_CONTRACT_ADDRESS,
+        CONTRACT_ADDRESSES.VAULT_CONTRACT,
         vaultABI,
         this.provider
       )
 
       this.contracts.loanManager = new ethers.Contract(
-        process.env.LOAN_MANAGER_ADDRESS,
+        CONTRACT_ADDRESSES.LOAN_MANAGER,
         loanManagerABI,
         this.provider
       )
 
       this.contracts.dpoToken = new ethers.Contract(
-        process.env.DPO_TOKEN_ADDRESS,
+        CONTRACT_ADDRESSES.DPO_TOKEN,
         dpoTokenABI,
         this.provider
       )
