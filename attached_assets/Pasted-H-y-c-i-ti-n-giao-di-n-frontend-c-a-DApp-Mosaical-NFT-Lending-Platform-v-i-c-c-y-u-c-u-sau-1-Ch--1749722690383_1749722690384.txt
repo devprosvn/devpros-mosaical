@@ -1,0 +1,95 @@
+Hãy cải tiến giao diện frontend của DApp Mosaical NFT Lending Platform với các yêu cầu sau:
+
+1. Chủ đề giao diện & Phong cách
+Dark Mode: Toàn bộ giao diện nền đen/xám đậm, text trắng/xám nhạt.
+
+Neo-brutalism + Cyberpunk Accent: Sử dụng các màu neon nổi bật (tím, xanh dương, hồng fuchsia) cho nút, link, icon, trạng thái.
+
+Glassmorphism: Card, menu, dialog có hiệu ứng kính mờ, bóng mờ, bo góc lớn, border-gradient.
+
+Responsive: Tối ưu trải nghiệm mobile/tablet.
+
+2. UI Components & Layout
+Sidebar (hoặc Top Nav):
+
+Dùng icon lớn, hiệu ứng hover neon/glow.
+
+Logo nổi bật, có gradient hoặc neon stroke.
+
+Hiện trạng thái kết nối ví rõ ràng (nút glow khi đã connect).
+
+Main Content:
+
+Card/box dữ liệu (dashboard, NFT, loan, DPO…) dùng glassmorphism, border neon/gradient, bóng mờ nhẹ.
+
+Số liệu, status (LTV, Health, Yield...) hiển thị bằng card lớn, font to, màu mạnh, có biểu tượng trạng thái (success, warning, danger).
+
+Biểu đồ (Chart) nằm trong card kính mờ, trục màu neon, label rõ nét.
+
+Button & Input:
+
+Button lớn, rounded, hiệu ứng glow khi hover, gradient background.
+
+Form input border neon khi focus, có icon minh hoạ.
+
+Popup/Alert:
+
+Khi Health Factor thấp, hiện popup cảnh báo với hiệu ứng rung/đỏ neon.
+
+Thông báo (toast/snackbar) có hiệu ứng trượt ra, màu gradient.
+
+3. Typography & Icon
+Sử dụng font sans-serif hiện đại (ví dụ: Inter, Space Grotesk), chữ đậm, spacing rộng.
+
+Icon vector style (dùng lucide-react hoặc heroicons), màu accent neon khi active.
+
+4. UX & Animation
+Hover effect cho từng component: icon chuyển màu neon/glow, card phóng nhẹ khi hover.
+
+Loading spinner neon, hiệu ứng mượt mà khi chuyển trang hoặc submit.
+
+Micro-interaction: Bấm nút, chọn NFT, animation nổi bật.
+
+5. Đa ngôn ngữ & Accessibility
+Giữ tính năng EN/VI.
+
+Tương phản màu sắc đủ cao, font dễ đọc.
+
+6. Tham khảo style từ các site sau:
+Uniswap
+
+Blur
+
+Magic Eden
+
+CyberConnect
+
+Rainbow Wallet
+
+7. Công nghệ & Libraries
+TailwindCSS, shadcn/ui cho card, modal, button.
+
+Lucide-react cho icon.
+
+Recharts cho chart.
+
+Hiệu ứng glassmorphism bằng backdrop-blur, bg-opacity, border-gradient Tailwind.
+
+Giữ nguyên logic đã làm với React, TypeScript, Web3.
+
+8. Đề xuất cải tiến cụ thể:
+Sửa lại toàn bộ layout, tăng khoảng cách, căn giữa card, button, text rõ ràng.
+
+Chia nhỏ lại các component: SidebarNav, NeonCard, GlassButton, NFTGallery, LoanStatusCard, DPOChart, WalletStatus, NotificationToast.
+
+Đặt biến theme màu accent trong Tailwind (theme.extend.colors), dùng class như bg-gradient-to-r from-[#A259F7] to-[#00BFFF], text-fuchsia-400, border-neon.
+
+Đảm bảo mọi trạng thái (connect wallet, deposit, repay, alert...) đều có feedback trực quan, màu sắc rõ nét.
+
+Yêu cầu:
+
+Viết lại toàn bộ phần giao diện (JSX + Tailwind), import icon, đặt tên component rõ ràng, chia nhỏ hợp lý.
+
+Mẫu giao diện đầu ra phải “hiện đại – Web3 – neon – glassmorphism – dark mode – cực đẹp”, không còn thô sơ như ban đầu.
+
+Nếu được, xuất luôn một số component ví dụ mẫu cho Dashboard, NFT Card, Sidebar Neon, Alert, Chart glassmorphism.
