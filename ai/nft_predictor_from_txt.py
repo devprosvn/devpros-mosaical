@@ -4,6 +4,7 @@ import numpy as np
 import json
 import os
 import glob
+import joblib
 from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
@@ -195,6 +196,44 @@ class NFTPredictorFromTXT:
         
         return future_predictions
     
+    def export_model(self, collection_id):
+        """Export model và scaler thành file .pkl"""
+        if not self.is_trained:
+            raise ValueError("Model chưa được train!")
+        
+        # Tạo thư mục ai_models nếu chưa có
+        os.makedirs('ai_models', exist_ok=True)
+        
+        # Export model và scaler
+        model_filename = f"ai_models/nft_model_{collection_id}.pkl"
+        scaler_filename = f"ai_models/nft_scaler_{collection_id}.pkl"
+        
+        joblib.dump(self.model, model_filename)
+        joblib.dump(self.scaler, scaler_filename)
+        
+        print(f"📦 Model exported: {model_filename}")
+        print(f"📦 Scaler exported: {scaler_filename}")
+        
+        return model_filename, scaler_filename
+    
+    def load_model(self, collection_id):
+        """Load model và scaler từ file .pkl"""
+        model_filename = f"ai_models/nft_model_{collection_id}.pkl"
+        scaler_filename = f"ai_models/nft_scaler_{collection_id}.pkl"
+        
+        if not os.path.exists(model_filename) or not os.path.exists(scaler_filename):
+            print(f"❌ Không tìm thấy model files cho {collection_id}")
+            return False
+        
+        self.model = joblib.load(model_filename)
+        self.scaler = joblib.load(scaler_filename)
+        self.is_trained = True
+        
+        print(f"✅ Loaded model: {model_filename}")
+        print(f"✅ Loaded scaler: {scaler_filename}")
+        
+        return True
+
     def save_results(self, collection_id, results, future_predictions):
         """Lưu kết quả dự đoán"""
         output = {
@@ -271,7 +310,11 @@ class NFTPredictorFromTXT:
             for i, pred in enumerate(future_predictions, 1):
                 print(f"   Ngày +{i}: ${pred:.2f} USD ({pred*100:.2f} DPSV)")
             
-            # 8. Save results
+            # 8. Export model
+            print("\n7️⃣ Đang export model...")
+            model_file, scaler_file = self.export_model(collection_id)
+            
+            # 9. Save results
             self.save_results(collection_id, results, future_predictions)
             
             end_time = datetime.now()

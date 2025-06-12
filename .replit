@@ -48,6 +48,23 @@ args = "npm run dev"
 task = "shell.exec"
 args = "cd backend && npm run dev"
 
+[[workflows.workflow]]
+name = "Full Stack + AI"
+author = 42118327
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend && npm run dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python start_ai_api.py"
+
 [[ports]]
 localPort = 3001
 externalPort = 80

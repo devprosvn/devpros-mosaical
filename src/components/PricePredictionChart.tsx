@@ -1,148 +1,191 @@
 
 import React, { useState, useEffect } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
-import { TrendingUp, Brain, RefreshCw } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
+import { TrendingUp, Download, RefreshCw } from 'lucide-react'
 
 interface PredictionData {
-  day: number
+  future_dates: string[]
+  predicted_prices: number[]
+  collection_id: string
+}
+
+interface ChartDataPoint {
   date: string
-  predicted_price_usd: number
-  predicted_price_dpsv: number
-  confidence: number
+  price: number
+  priceDPSV: number
 }
 
 interface PricePredictionChartProps {
-  collectionId: string
-  collectionName: string
+  collection?: string
 }
 
 const PricePredictionChart: React.FC<PricePredictionChartProps> = ({ 
-  collectionId, 
-  collectionName 
+  collection = 'cryptopunks' 
 }) => {
-  const [predictions, setPredictions] = useState<PredictionData[]>([])
+  const { t } = useLanguage()
+  const [predictionData, setPredictionData] = useState<ChartDataPoint[]>([])
   const [loading, setLoading] = useState(false)
-  const [isTraining, setIsTraining] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const fetchPredictions = async () => {
+  const fetchPredictions = async (collectionId: string) => {
     try {
       setLoading(true)
-      console.log(`Fetching predictions for ${collectionId}...`)
+      setError(null)
+
+      const response = await fetch(`http://localhost:5000/predict/future/${collectionId}?days=7`)
       
-      const response = await fetch(`http://localhost:5000/api/predictions/${collectionId}`)
-      
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Predictions received:', data)
-        setPredictions(data.data.predictions || [])
-      } else {
-        console.error('Failed to fetch predictions:', response.status, response.statusText)
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`)
       }
-    } catch (error) {
-      console.error('Failed to fetch predictions:', error)
-      // Set some fallback data if API fails
-      setPredictions([])
+
+      const data: PredictionData = await response.json()
+      
+      // Transform data for chart
+      const chartData: ChartDataPoint[] = data.future_dates.map((date, index) => ({
+        date: new Date(date).toLocaleDateString('vi-VN', { 
+          month: 'short', 
+          day: 'numeric' 
+        }),
+        price: data.predicted_prices[index],
+        priceDPSV: data.predicted_prices[index] * 100
+      }))
+
+      setPredictionData(chartData)
+
+    } catch (err) {
+      console.error('Error fetching predictions:', err)
+      setError(err instanceof Error ? err.message : 'Unknown error')
+      
+      // Fallback to mock data
+      const mockData: ChartDataPoint[] = Array.from({ length: 7 }, (_, i) => ({
+        date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', { 
+          month: 'short', 
+          day: 'numeric' 
+        }),
+        price: Math.random() * 50 + 50,
+        priceDPSV: (Math.random() * 50 + 50) * 100
+      }))
+      setPredictionData(mockData)
+      
     } finally {
       setLoading(false)
     }
   }
 
-  const trainModel = async () => {
+  const handleTrainModel = async () => {
     try {
-      setIsTraining(true)
-      console.log(`Training model for ${collectionId}...`)
-      
-      const response = await fetch('http://localhost:5000/api/predictions/train', {
+      setLoading(true)
+      setError(null)
+
+      const response = await fetch(`http://localhost:5000/train/${collection}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          collection_id: collectionId,
-          days: 90
-        })
+        }
       })
 
-      if (response.ok) {
-        const data = await response.json()
-        console.log('Model trained successfully:', data)
-        // Refresh predictions after training
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Small delay
-        await fetchPredictions()
-      } else {
-        console.error('Training failed:', response.status, response.statusText)
-        const errorData = await response.json()
-        console.error('Error details:', errorData)
+      if (!response.ok) {
+        throw new Error(`Training failed: ${response.status}`)
       }
-    } catch (error) {
-      console.error('Failed to train model:', error)
+
+      const result = await response.json()
+      console.log('Training completed:', result)
+      
+      // Refresh predictions after training
+      await fetchPredictions(collection)
+
+    } catch (err) {
+      console.error('Error training model:', err)
+      setError(err instanceof Error ? err.message : 'Training failed')
     } finally {
-      setIsTraining(false)
+      setLoading(false)
+    }
+  }
+
+  const downloadModel = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/models/${collection}/download`)
+      
+      if (!response.ok) {
+        throw new Error('Download failed')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `nft_model_${collection}.pkl`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+    } catch (err) {
+      console.error('Error downloading model:', err)
+      setError('Download failed')
     }
   }
 
   useEffect(() => {
-    fetchPredictions()
-  }, [collectionId])
-
-  const formatTooltip = (value: any, name: string) => {
-    if (name === 'predicted_price_dpsv') {
-      return [`${Number(value).toFixed(0)} DPSV`, 'Price (DPSV)']
-    }
-    if (name === 'predicted_price_usd') {
-      return [`$${Number(value).toFixed(2)}`, 'Price (USD)']
-    }
-    if (name === 'confidence') {
-      return [`${(Number(value) * 100).toFixed(1)}%`, 'Confidence']
-    }
-    return [value, name]
-  }
+    fetchPredictions(collection)
+  }, [collection])
 
   return (
-    <Card className="w-full">
+    <Card className="glass-card">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-neon-purple" />
-            AI Price Predictions - {collectionName}
+          <CardTitle className="flex items-center gap-2 gradient-text">
+            <TrendingUp className="h-5 w-5" />
+            {t('pricePrediction')} - {collection.toUpperCase()}
           </CardTitle>
           <div className="flex gap-2">
             <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchPredictions}
+              onClick={() => fetchPredictions(collection)}
               disabled={loading}
+              size="sm"
+              variant="outline"
             >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
             <Button
-              variant="neon"
+              onClick={handleTrainModel}
+              disabled={loading}
               size="sm"
-              onClick={trainModel}
-              disabled={isTraining}
+              className="cyber-button"
             >
-              {isTraining ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                  Training...
-                </>
-              ) : (
-                <>
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Train AI Model
-                </>
-              )}
+              {loading ? 'Training...' : 'Train AI'}
+            </Button>
+            <Button
+              onClick={downloadModel}
+              disabled={loading}
+              size="sm"
+              variant="outline"
+            >
+              <Download className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
+      
       <CardContent>
-        {predictions.length > 0 ? (
-          <div className="space-y-4">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={predictions}>
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+            <span className="ml-2">Loading predictions...</span>
+          </div>
+        ) : (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={predictionData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis 
                   dataKey="date" 
@@ -150,84 +193,62 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
                   fontSize={12}
                 />
                 <YAxis 
-                  yAxisId="dpsv"
-                  stroke="#A259F7"
-                  fontSize={12}
-                />
-                <YAxis 
-                  yAxisId="usd"
-                  orientation="right"
-                  stroke="#00FF85"
+                  stroke="#9CA3AF"
                   fontSize={12}
                 />
                 <Tooltip 
                   contentStyle={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                    border: '1px solid rgba(162, 89, 247, 0.3)',
-                    borderRadius: '8px'
+                    backgroundColor: '#1F2937',
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#F9FAFB'
                   }}
-                  formatter={formatTooltip}
+                  formatter={(value: number, name: string) => [
+                    `$${value.toFixed(2)}`,
+                    name === 'price' ? 'USD' : 'DPSV'
+                  ]}
                 />
                 <Legend />
-                <Line
-                  yAxisId="dpsv"
-                  type="monotone"
-                  dataKey="predicted_price_dpsv"
-                  stroke="#A259F7"
+                <Line 
+                  type="monotone" 
+                  dataKey="price" 
+                  stroke="#A855F7" 
                   strokeWidth={3}
-                  dot={{ fill: '#A259F7', strokeWidth: 0, r: 4 }}
-                  name="Price (DPSV)"
+                  dot={{ fill: '#A855F7', strokeWidth: 2, r: 4 }}
+                  name="Price (USD)"
                 />
-                <Line
-                  yAxisId="usd"
-                  type="monotone"
-                  dataKey="predicted_price_usd"
-                  stroke="#00FF85"
+                <Line 
+                  type="monotone" 
+                  dataKey="priceDPSV" 
+                  stroke="#06B6D4" 
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  dot={{ fill: '#00FF85', strokeWidth: 0, r: 3 }}
-                  name="Price (USD)"
+                  dot={{ fill: '#06B6D4', strokeWidth: 2, r: 3 }}
+                  name="Price (DPSV)"
                 />
               </LineChart>
             </ResponsiveContainer>
-
-            {/* Prediction Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <div className="bg-gray-800 rounded-lg p-4">
-                <p className="text-sm text-gray-400">7-Day Avg</p>
-                <p className="text-xl font-bold text-neon-purple">
-                  {(predictions.reduce((sum, p) => sum + p.predicted_price_dpsv, 0) / predictions.length).toFixed(0)} DPSV
-                </p>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-4">
-                <p className="text-sm text-gray-400">Price Trend</p>
-                <p className="text-xl font-bold text-green-400">
-                  {predictions[predictions.length - 1]?.predicted_price_dpsv > predictions[0]?.predicted_price_dpsv ? '↑' : '↓'} 
-                  {' '}
-                  {(((predictions[predictions.length - 1]?.predicted_price_dpsv - predictions[0]?.predicted_price_dpsv) / predictions[0]?.predicted_price_dpsv) * 100).toFixed(1)}%
-                </p>
-              </div>
-              <div className="bg-gray-800 rounded-lg p-4">
-                <p className="text-sm text-gray-400">Avg Confidence</p>
-                <p className="text-xl font-bold text-neon-cyan">
-                  {((predictions.reduce((sum, p) => sum + p.confidence, 0) / predictions.length) * 100).toFixed(1)}%
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Brain className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-400 mb-4">No predictions available</p>
-            <Button
-              variant="neon"
-              onClick={trainModel}
-              disabled={isTraining}
-            >
-              {isTraining ? 'Training...' : 'Train AI Model'}
-            </Button>
           </div>
         )}
+
+        <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+          <div className="p-3 bg-purple-500/20 rounded-lg">
+            <div className="text-purple-300">Avg. Prediction</div>
+            <div className="text-xl font-bold text-purple-100">
+              ${predictionData.length > 0 ? 
+                (predictionData.reduce((sum, item) => sum + item.price, 0) / predictionData.length).toFixed(2) 
+                : '0.00'}
+            </div>
+          </div>
+          <div className="p-3 bg-cyan-500/20 rounded-lg">
+            <div className="text-cyan-300">7-Day Trend</div>
+            <div className="text-xl font-bold text-cyan-100">
+              {predictionData.length >= 2 ? 
+                (predictionData[predictionData.length - 1].price > predictionData[0].price ? '↗️ Up' : '↘️ Down')
+                : '📊 Loading'}
+            </div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   )
