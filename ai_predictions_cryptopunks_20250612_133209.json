@@ -1,0 +1,46 @@
+{
+  "collection_id": "cryptopunks",
+  "timestamp": "2025-06-12T13:32:09.915192",
+  "model_performance": {
+    "mae": 4.297661378210519,
+    "rmse": 5.730233460085869,
+    "r2": 0.5029566153222083
+  },
+  "future_predictions": [
+    {
+      "day": 1,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 2,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 3,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 4,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 5,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 6,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    },
+    {
+      "day": 7,
+      "predicted_price_usd": 89.44850040999998,
+      "predicted_price_dpsv": 8944.850040999998
+    }
+  ]
+}

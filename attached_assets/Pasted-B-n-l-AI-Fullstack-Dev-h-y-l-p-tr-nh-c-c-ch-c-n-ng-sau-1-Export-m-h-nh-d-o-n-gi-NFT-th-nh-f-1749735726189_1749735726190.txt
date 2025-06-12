@@ -1,0 +1,89 @@
+Bạn là AI/Fullstack Dev, hãy lập trình các chức năng sau:
+
+1. Export mô hình dự đoán giá NFT thành file .pkl
+Sau khi train xong model AI (ví dụ: RandomForestRegressor, XGBoost hoặc ensemble), hãy lưu model và scaler vào file .pkl:
+
+Ví dụ:
+
+python
+Copy
+Edit
+import joblib
+joblib.dump(model, f'ai_models/nft_model_{collection}.pkl')
+joblib.dump(scaler, f'ai_models/nft_scaler_{collection}.pkl')
+Đảm bảo file .pkl lưu kèm tên bộ sưu tập NFT.
+
+2. Xây dựng API backend (Flask hoặc FastAPI, hoặc Node.js nếu dùng Python-WASM)
+Tạo endpoint upload/serve file .pkl cho frontend lấy model về, hoặc endpoint predict giá với file .pkl + input features.
+
+Ví dụ (Flask):
+
+python
+Copy
+Edit
+from flask import Flask, request, jsonify
+import joblib
+import numpy as np
+
+app = Flask(__name__)
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    # Nhận features từ frontend
+    data = request.json
+    features = np.array(data['features']).reshape(1, -1)
+    # Load model và scaler
+    model = joblib.load('ai_models/nft_model_cryptopunks.pkl')
+    scaler = joblib.load('ai_models/nft_scaler_cryptopunks.pkl')
+    features_scaled = scaler.transform(features)
+    pred = model.predict(features_scaled)
+    return jsonify({'prediction': float(pred[0])})
+3. Đọc file .pkl và hiển thị biểu đồ dự đoán giá NFT trên giao diện web
+Trên frontend React/Next.js, sử dụng npm packages để:
+
+Đọc file .pkl: Hiện chưa có thư viện npm native nào đọc .pkl trực tiếp trong browser (do khác biệt Python/JS).
+
+Cách phổ biến: Frontend gửi request tới backend (Flask/FastAPI/Node) để lấy prediction hoặc toàn bộ chuỗi giá dự đoán (array/json). Backend đọc .pkl và trả kết quả, frontend chỉ vẽ chart.
+
+Vẽ biểu đồ: Dùng Recharts, Chart.js, hoặc Plotly.js, ví dụ với Recharts:
+
+jsx
+Copy
+Edit
+<LineChart width={600} height={300} data={predictedPrices}>
+  <XAxis dataKey="day" />
+  <YAxis dataKey="price" />
+  <Tooltip />
+  <Legend />
+  <Line type="monotone" dataKey="price" stroke="#A259F7" />
+</LineChart>
+4. Yêu cầu chi tiết
+Flow chuẩn:
+
+Backend: Cho phép export & import file .pkl (model, scaler).
+
+Backend API nhận request, đọc .pkl, trả về kết quả predict hoặc mảng giá cho frontend.
+
+Frontend: Gửi request lấy dữ liệu dự đoán, nhận json về, dùng thư viện chart npm (Recharts/Chart.js/Plotly) để vẽ biểu đồ giá NFT (dự đoán tương lai 7 ngày hoặc tuỳ ý).
+
+Giao diện: Cho phép chọn collection, upload hoặc chọn file model .pkl hoặc request predict.
+
+Gợi ý thư viện npm:
+
+axios (gửi request tới backend)
+
+recharts hoặc react-chartjs-2 (vẽ biểu đồ)
+
+react-dropzone (nếu muốn upload file .pkl lên backend)
+
+(Tuỳ chọn nâng cao): Có thể demo luôn cho user upload file .pkl lên server/backend để predict và trả về json chart data.
+
+Ví dụ JSON response để frontend vẽ chart:
+json
+Copy
+Edit
+{
+  "future_dates": ["2025-06-13", "2025-06-14", ...],
+  "predicted_prices": [89.45, 89.12, 90.01, ...]
+}
+Frontend sẽ nhận và render biểu đồ dạng line chart.
