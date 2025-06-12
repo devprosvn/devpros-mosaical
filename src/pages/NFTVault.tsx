@@ -6,36 +6,28 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useWeb3 } from '../contexts/Web3Context'
 import { Image, Package, ArrowDownToLine, ArrowUpFromLine } from 'lucide-react'
 
-// Mock NFT data
-const mockNFTs = [
-  {
-    id: '1',
-    name: 'Bored Ape #1234',
-    collection: 'Bored Ape Yacht Club',
-    image: '/api/placeholder/200/200',
-    value: 45.5,
-    deposited: false,
-    canWithdraw: true,
-  },
-  {
-    id: '2',
-    name: 'CryptoPunk #5678',
-    collection: 'CryptoPunks',
-    image: '/api/placeholder/200/200',
-    value: 78.2,
-    deposited: true,
-    canWithdraw: false, // Has active loan
-  },
-  {
-    id: '3',
-    name: 'Azuki #9876',
-    collection: 'Azuki',
-    image: '/api/placeholder/200/200',
-    value: 12.3,
-    deposited: false,
-    canWithdraw: true,
-  },
-]
+// NFT Collections data
+const [nftCollections, setNFTCollections] = useState([])
+const [loading, setLoading] = useState(true)
+
+const fetchNFTCollections = async () => {
+  try {
+    setLoading(true)
+    const response = await fetch('/api/nfts')
+    if (response.ok) {
+      const data = await response.json()
+      setNFTCollections(data.data || [])
+    }
+  } catch (error) {
+    console.error('Failed to fetch NFT collections:', error)
+  } finally {
+    setLoading(false)
+  }
+}
+
+React.useEffect(() => {
+  fetchNFTCollections()
+}, [])
 
 const NFTVault: React.FC = () => {
   const { t } = useLanguage()
@@ -82,8 +74,8 @@ const NFTVault: React.FC = () => {
     )
   }
 
-  const ownedNFTs = mockNFTs.filter(nft => !nft.deposited)
-  const depositedNFTs = mockNFTs.filter(nft => nft.deposited)
+  const ownedNFTs = nftCollections.filter(nft => !nft.deposited)
+  const depositedNFTs = nftCollections.filter(nft => nft.deposited)
 
   return (
     <div className="space-y-6">
@@ -98,7 +90,7 @@ const NFTVault: React.FC = () => {
         <Card className="p-4">
           <div className="text-center">
             <p className="text-sm text-gray-400">Total NFTs</p>
-            <p className="text-2xl font-bold text-white">{mockNFTs.length}</p>
+            <p className="text-2xl font-bold text-white">{nftCollections.length}</p>
           </div>
         </Card>
         <Card className="p-4">
@@ -111,7 +103,7 @@ const NFTVault: React.FC = () => {
           <div className="text-center">
             <p className="text-sm text-gray-400">Total Value</p>
             <p className="text-2xl font-bold text-neon-purple">
-              {mockNFTs.reduce((sum, nft) => sum + nft.value, 0).toFixed(1)} ETH
+              {nftCollections.reduce((sum, nft) => sum + (nft.floorPriceDPSV || 0), 0).toFixed(0)} DPSV
             </p>
           </div>
         </Card>
@@ -143,7 +135,10 @@ const NFTVault: React.FC = () => {
                   </div>
                   <h3 className="font-semibold text-white mb-1">{nft.name}</h3>
                   <p className="text-sm text-gray-400 mb-2">{nft.collection}</p>
-                  <p className="text-lg font-bold text-neon-purple mb-3">{nft.value} ETH</p>
+                  <div className="mb-3">
+                    <p className="text-lg font-bold text-neon-purple">{nft.floorPriceDPSV?.toFixed(0)} DPSV</p>
+                    <p className="text-sm text-gray-400">${nft.floorPrice?.toFixed(2)} USD</p>
+                  </div>
                   <Button
                     variant="neon"
                     size="sm"

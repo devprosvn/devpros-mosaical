@@ -1,4 +1,3 @@
-
 const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
@@ -13,9 +12,11 @@ const indexerService = require('./services/indexerService')
 
 // Routes
 const userRoutes = require('./routes/user')
-const analyticsRoutes = require('./routes/analytics')
 const transactionRoutes = require('./routes/transaction')
+const analyticsRoutes = require('./routes/analytics')
 const authRoutes = require('./routes/auth')
+const nftRoutes = require('./routes/nfts')
+const predictionRoutes = require('./routes/predictions')
 
 const app = express()
 const server = createServer(app)
@@ -48,6 +49,8 @@ app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/tx', transactionRoutes)
+app.use('/api/nfts', nftRoutes)
+app.use('/api/predictions', predictionRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
@@ -75,12 +78,12 @@ app.use((req, res) => {
 // Socket.io for real-time notifications
 io.on('connection', (socket) => {
   logger.info('Client connected:', socket.id)
-  
+
   socket.on('subscribe', (address) => {
     socket.join(`user:${address}`)
     logger.info(`User ${address} subscribed to notifications`)
   })
-  
+
   socket.on('disconnect', () => {
     logger.info('Client disconnected:', socket.id)
   })
@@ -96,19 +99,19 @@ async function startServer() {
     // Initialize database
     await connectDB()
     logger.info('Database connected')
-    
+
     // Initialize Web3
     await initWeb3()
     logger.info('Web3 initialized')
-    
+
     // Start indexer service
     indexerService.start()
     logger.info('Indexer service started')
-    
+
     server.listen(PORT, '0.0.0.0', () => {
       logger.info(`Server running on port ${PORT}`)
     })
-    
+
   } catch (error) {
     logger.error('Failed to start server:', error)
     process.exit(1)

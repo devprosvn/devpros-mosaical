@@ -42,3 +42,32 @@ export const getExplorerUrl = (txHash: string) =>
 
 export const getAddressUrl = (address: string) => 
   `${CHAINLET_CONFIG.blockExplorerUrls[0]}/address/${address}`
+// DPSV Token Information
+export const DPSV_TOKEN = {
+  name: 'DevPros Value',
+  symbol: 'DPSV',
+  decimals: 18,
+  address: CONTRACT_ADDRESSES.DPO_TOKEN,
+} as const
+
+// Conversion rates (mock - in production would be from price oracle)
+export const USD_TO_DPSV_RATE = 100 // 1 USD = 100 DPSV
+
+// Supported NFT Collections
+export const SUPPORTED_NFTS = {
+  CRYPTOPUNKS: {
+    id: 'cryptopunks',
+    name: 'CryptoPunks',
+    contractAddress: '0xb47e3cd837dDF8e4c57F05d70Ab865de6e193BBB'
+  },
+  AZUKI: {
+    id: 'azuki',
+    name: 'Azuki',
+    contractAddress: '0xED5AF388653567Af2F388E6224dC7C4b3241C544'
+  },
+  BAYC: {
+    id: 'bored-ape-yacht-club',
+    name: 'Bored Ape Yacht Club',
+    contractAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D'
+  }
+} as const

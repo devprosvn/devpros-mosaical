@@ -2,6 +2,7 @@
 import React from 'react'
 import { NeonCard, NeonCardContent, NeonCardHeader, NeonCardTitle } from '../components/ui/neon-card'
 import { useLanguage } from '../contexts/LanguageContext'
+import PricePredictionChart from '../components/PricePredictionChart'
 import { useWeb3 } from '../contexts/Web3Context'
 import {
   LineChart,
@@ -255,6 +256,25 @@ const Analytics: React.FC = () => {
             </div>
           </NeonCardContent>
         </NeonCard>
+      </div>
+
+      {/* AI Price Predictions */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold gradient-text">AI Price Predictions</h2>
+        <div className="grid grid-cols-1 gap-6">
+          <PricePredictionChart 
+            collectionId="cryptopunks" 
+            collectionName="CryptoPunks" 
+          />
+          <PricePredictionChart 
+            collectionId="azuki" 
+            collectionName="Azuki" 
+          />
+          <PricePredictionChart 
+            collectionId="bored-ape-yacht-club" 
+            collectionName="Bored Ape Yacht Club" 
+          />
+        </div>
       </div>
 
       {/* Collection Performance */}
