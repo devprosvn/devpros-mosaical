@@ -1,0 +1,125 @@
+1. Đặc tả phần mềm – Mosaical NFT Lending Platform
+A. FRONTEND (Client DApp UI)
+1. Công nghệ & Kiến trúc
+Framework: React (hoặc SolidJS), ưu tiên Typescript.
+
+UI Library: shadcn/ui, TailwindCSS.
+
+Web3: ethers.js (hoặc wagmi + viem cho advanced), kết nối Metamask.
+
+State Management: React Context API hoặc Zustand.
+
+Chart: Recharts (hoặc Chart.js).
+
+Routing: React Router.
+
+Responsive: Mobile-first, tối ưu hiển thị trên desktop & mobile.
+
+2. Chức năng chính
+Kết nối ví EVM (Metamask) + network Saga Chainlet:
+
+Detect Metamask, hiện nút Connect Wallet.
+
+Tự động kiểm tra & switch/add network với thông tin:
+
+ChainID: Tùy chainlet (ví dụ: devpros_2749656616387000-1, convert sang hex ChainID)
+
+RPC: https://devpros-2749656616387000-1.jsonrpc.sagarpc.io
+
+Block Explorer: https://devpros-2749656616387000-1.sagaexplorer.io
+
+Native Token: DPSV
+
+Dashboard tổng quan:
+
+Portfolio NFT đã cầm cố, NFT đang vay, DPO token đang nắm giữ.
+
+Hiển thị số dư, giá trị ước tính, các chỉ số Health factor, LTV, utility score.
+
+Quản lý NFT:
+
+Tìm và hiển thị NFT user sở hữu theo collection.
+
+Chọn NFT để deposit vào Vault (cầm cố).
+
+Hiển thị trạng thái (đã cầm cố/chưa, đang vay…).
+
+Lending/Borrow/Repay:
+
+Form vay tiền dựa trên NFT (chọn NFT, nhập số lượng vay, hiển thị LTV tối đa…).
+
+Trả nợ (repay), tất toán, rút NFT nếu không còn nợ.
+
+Thông báo cảnh báo khi health factor thấp.
+
+Liquidation Alert:
+
+Popup cảnh báo khi gần ngưỡng thanh lý (liquidation).
+
+DPO Token Dashboard:
+
+Hiển thị số DPO token nhận được, giao dịch, chuyển DPO token.
+
+Data/Analytics:
+
+Biểu đồ lãi suất, yield, lịch sử vay trả, giá NFT, volatility.
+
+Thông báo real-time, animation hiệu ứng micro-interaction (glow, rung, v.v.).
+
+General:
+
+Đa ngôn ngữ (ưu tiên EN/VI)
+
+Theme: Dark mode + accent cyberpunk (neon), card glassmorphism.
+
+B. BACKEND (API Service + Onchain Interaction)
+1. Công nghệ
+Ngôn ngữ: Node.js (Express hoặc Fastify).
+
+Database: PostgreSQL (hoặc MongoDB nếu NoSQL).
+
+Web3: ethers.js (server-side) để gọi RPC chainlet, kiểm tra trạng thái onchain.
+
+API: RESTful (hoặc GraphQL nếu cần query phức).
+
+Realtime: Socket.io (thông báo cảnh báo, liquidation warning).
+
+2. Chức năng chính
+API quản lý NFT, Vault, Loan, User
+
+Đọc dữ liệu từ contract Vault/LoanManager/DPO on chain (tương tác Saga chainlet RPC).
+
+Lưu trữ cache thông tin NFT, loan, DPO token, lịch sử giao dịch để tăng tốc.
+
+Cung cấp API:
+
+GET user NFT, GET vault status
+
+POST deposit/withdraw NFT (gửi transaction tới user)
+
+GET/POST borrow, repay, health factor, liquidation status
+
+Index dữ liệu onchain:
+
+Định kỳ quét block, cập nhật trạng thái NFT, loan, DPO token.
+
+Index các sự kiện contract: Deposit, Withdraw, Loan, Repay, Liquidation.
+
+Oracle/Analytics:
+
+Lưu dữ liệu giá, utility score, volatility để hiển thị lên dashboard analytics.
+
+Realtime Notif:
+
+Gửi cảnh báo tới frontend khi loan gần thanh lý, khi có update mới.
+
+Authentication:
+
+Xác thực user bằng ví (SIWE – Sign-In with Ethereum).
+
+C. Chuẩn hóa contract address và endpoint
+RPC: https://devpros-2749656616387000-1.jsonrpc.sagarpc.io
+
+Block Explorer: https://devpros-2749656616387000-1.sagaexplorer.io
+
+Các smart contract: (nêu rõ từng contract, ví dụ Vault/LoanManager/DPO… lấy từ link bạn gửi)
