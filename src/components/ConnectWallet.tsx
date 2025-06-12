@@ -14,6 +14,8 @@ const ConnectWallet: React.FC = () => {
       await connectWallet()
     } catch (error) {
       console.error('Failed to connect wallet:', error)
+      // Show user-friendly error message
+      alert('Failed to connect MetaMask. Please make sure MetaMask is installed and try again.')
     }
   }
 

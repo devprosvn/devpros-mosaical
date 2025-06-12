@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { ethers } from 'ethers'
+import { MetaMaskSDK } from '@metamask/sdk'
 
 // Saga chainlet configuration
 const SAGA_CHAINLET_CONFIG = {
@@ -40,6 +41,15 @@ interface Web3ProviderProps {
   children: ReactNode
 }
 
+// Initialize MetaMask SDK
+const MMSDK = new MetaMaskSDK({
+  dappMetadata: {
+    name: "Mosaical NFT Lending Platform",
+    url: window.location.href,
+  },
+  headless: false,
+})
+
 export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   const [account, setAccount] = useState<string | null>(null)
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null)
@@ -50,33 +60,38 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   useEffect(() => {
     checkConnection()
     
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', handleAccountsChanged)
-      window.ethereum.on('chainChanged', handleChainChanged)
+    const mmProvider = MMSDK.getProvider()
+    if (mmProvider) {
+      mmProvider.on('accountsChanged', handleAccountsChanged)
+      mmProvider.on('chainChanged', handleChainChanged)
       
       return () => {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
-        window.ethereum.removeListener('chainChanged', handleChainChanged)
+        mmProvider.removeListener('accountsChanged', handleAccountsChanged)
+        mmProvider.removeListener('chainChanged', handleChainChanged)
       }
     }
   }, [])
 
   const checkConnection = async () => {
-    if (window.ethereum) {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum)
-        const accounts = await provider.listAccounts()
+    try {
+      const mmProvider = MMSDK.getProvider()
+      if (mmProvider) {
+        const accounts = await mmProvider.request({ 
+          method: 'eth_accounts',
+          params: [] 
+        })
         
-        if (accounts.length > 0) {
+        if (accounts && accounts.length > 0) {
+          const provider = new ethers.BrowserProvider(mmProvider)
           setProvider(provider)
-          setAccount(accounts[0].address)
+          setAccount(accounts[0])
           setSigner(await provider.getSigner())
           setIsConnected(true)
           await checkNetwork(provider)
         }
-      } catch (error) {
-        console.error('Error checking connection:', error)
       }
+    } catch (error) {
+      console.error('Error checking connection:', error)
     }
   }
 
@@ -85,9 +100,11 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       const network = await provider.getNetwork()
       const isCorrect = network.chainId === BigInt(SAGA_CHAINLET_CONFIG.chainId)
       setIsCorrectNetwork(isCorrect)
+      return isCorrect
     } catch (error) {
       console.error('Error checking network:', error)
       setIsCorrectNetwork(false)
+      return false
     }
   }
 
@@ -104,13 +121,22 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   }
 
   const connectWallet = async () => {
-    if (!window.ethereum) {
-      throw new Error('Metamask not installed')
-    }
-
     try {
-      await window.ethereum.request({ method: 'eth_requestAccounts' })
-      const provider = new ethers.BrowserProvider(window.ethereum)
+      // Connect using MetaMask SDK
+      const accounts = await MMSDK.connect()
+      console.log('Connected accounts:', accounts)
+
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts found')
+      }
+
+      // Get provider from SDK
+      const mmProvider = MMSDK.getProvider()
+      if (!mmProvider) {
+        throw new Error('Provider not available')
+      }
+
+      const provider = new ethers.BrowserProvider(mmProvider)
       const signer = await provider.getSigner()
       const address = await signer.getAddress()
 
@@ -119,9 +145,8 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       setAccount(address)
       setIsConnected(true)
       
-      await checkNetwork(provider)
-      
-      if (!(await checkNetwork(provider))) {
+      const isCorrectNet = await checkNetwork(provider)
+      if (!isCorrectNet) {
         await switchToSagaNetwork()
       }
     } catch (error) {
@@ -139,10 +164,11 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   }
 
   const switchToSagaNetwork = async () => {
-    if (!window.ethereum) return
+    const mmProvider = MMSDK.getProvider()
+    if (!mmProvider) return
 
     try {
-      await window.ethereum.request({
+      await mmProvider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: SAGA_CHAINLET_CONFIG.chainId }],
       })
@@ -150,7 +176,7 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
       // This error code indicates that the chain has not been added to MetaMask
       if (switchError.code === 4902) {
         try {
-          await window.ethereum.request({
+          await mmProvider.request({
             method: 'wallet_addEthereumChain',
             params: [SAGA_CHAINLET_CONFIG],
           })
