@@ -5,13 +5,11 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useWeb3 } from '../contexts/Web3Context'
 import ConnectWallet from './ConnectWallet'
 import LanguageSwitch from './LanguageSwitch'
-import { CyberButton } from './ui/cyber-button'
 import {
   LayoutDashboard,
   PieChart,
   Coins,
   Vault,
-  Settings,
   Menu,
   X,
   Zap,
@@ -38,52 +36,53 @@ const Header: React.FC = () => {
   return (
     <>
       {/* Main Header */}
-      <header className="sticky top-0 z-50 w-full">
-        <div className="glass-card border-b border-white/10 backdrop-blur-xl">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <Link to="/" className="flex items-center space-x-3 group">
-                <div className="relative">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-neon-purple to-neon-cyan flex items-center justify-center transform group-hover:scale-110 transition-all duration-200 shadow-glow">
-                    <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="absolute inset-0 w-10 h-10 rounded-xl bg-gradient-to-r from-neon-purple to-neon-cyan opacity-50 blur-md"></div>
+      <header className="sticky-top">
+        <nav className="navbar navbar-expand-lg glass-card border-bottom">
+          <div className="container-fluid">
+            {/* Logo */}
+            <Link to="/" className="navbar-brand d-flex align-items-center">
+              <div className="position-relative me-2">
+                <div className="d-flex align-items-center justify-content-center rounded-3 neon-glow" 
+                     style={{ width: '40px', height: '40px', background: 'linear-gradient(45deg, #a855f7, #06b6d4)' }}>
+                  <Zap className="text-white" size={24} />
                 </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-xl font-bold gradient-text">Mosaical</h1>
-                  <p className="text-xs text-gray-400 -mt-1">NFT Lending</p>
-                </div>
-              </Link>
+              </div>
+              <div className="d-none d-sm-block">
+                <h5 className="mb-0 gradient-text fw-bold">Mosaical</h5>
+                <small className="text-gray-400">NFT Lending</small>
+              </div>
+            </Link>
 
-              {/* Desktop Navigation */}
-              <nav className="hidden lg:flex items-center space-x-1">
+            {/* Desktop Navigation */}
+            <div className="collapse navbar-collapse">
+              <ul className="navbar-nav me-auto">
                 {navigation.map((item) => {
                   const Icon = item.icon
                   return (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                        isActive(item.href)
-                          ? 'bg-gradient-to-r from-neon-purple/20 to-neon-cyan/20 text-white border border-neon-purple/30 shadow-glow'
-                          : 'text-gray-300 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      <Icon className={`w-4 h-4 ${isActive(item.href) ? 'text-neon-cyan' : ''}`} />
-                      <span>{item.name}</span>
-                    </Link>
+                    <li className="nav-item" key={item.name}>
+                      <Link
+                        to={item.href}
+                        className={`nav-link d-flex align-items-center px-3 py-2 rounded-3 mx-1 ${
+                          isActive(item.href)
+                            ? 'glass-card neon-border text-white'
+                            : 'text-gray-300'
+                        }`}
+                      >
+                        <Icon className={`me-2 ${isActive(item.href) ? 'text-info' : ''}`} size={16} />
+                        <span>{item.name}</span>
+                      </Link>
+                    </li>
                   )
                 })}
-              </nav>
+              </ul>
 
               {/* Actions */}
-              <div className="flex items-center space-x-4">
-                {/* Connection Status Indicator */}
+              <div className="d-flex align-items-center gap-3">
+                {/* Connection Status */}
                 {isConnected && (
-                  <div className="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-green-500/20 border border-green-500/30">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                    <span className="text-xs text-green-400 font-medium">Connected</span>
+                  <div className="d-none d-sm-flex align-items-center px-3 py-1 rounded-pill bg-success bg-opacity-25 border border-success border-opacity-50">
+                    <div className="bg-success rounded-circle me-2" style={{ width: '8px', height: '8px' }}></div>
+                    <small className="text-success fw-medium">Connected</small>
                   </div>
                 )}
 
@@ -92,22 +91,23 @@ const Header: React.FC = () => {
 
                 {/* Mobile Menu Button */}
                 <button
+                  className="navbar-toggler d-lg-none border-0"
+                  type="button"
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors"
                 >
-                  {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                  {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </nav>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden">
-            <div className="glass-card border-t border-white/10">
-              <div className="container mx-auto px-4 py-4">
-                <nav className="space-y-2">
+          <div className="d-lg-none">
+            <div className="glass-card border-top">
+              <div className="container-fluid py-3">
+                <nav className="d-flex flex-column gap-2">
                   {navigation.map((item) => {
                     const Icon = item.icon
                     return (
@@ -115,13 +115,13 @@ const Header: React.FC = () => {
                         key={item.name}
                         to={item.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
+                        className={`d-flex align-items-center px-3 py-3 rounded-3 text-decoration-none ${
                           isActive(item.href)
-                            ? 'bg-gradient-to-r from-neon-purple/20 to-neon-cyan/20 text-white border border-neon-purple/30'
-                            : 'text-gray-300 hover:text-white hover:bg-white/5'
+                            ? 'glass-card neon-border text-white'
+                            : 'text-gray-300'
                         }`}
                       >
-                        <Icon className={`w-5 h-5 ${isActive(item.href) ? 'text-neon-cyan' : ''}`} />
+                        <Icon className={`me-3 ${isActive(item.href) ? 'text-info' : ''}`} size={20} />
                         <span>{item.name}</span>
                       </Link>
                     )
@@ -135,16 +135,16 @@ const Header: React.FC = () => {
 
       {/* Status Bar */}
       {isConnected && (
-        <div className="w-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border-b border-green-500/20">
-          <div className="container mx-auto px-4 py-2">
-            <div className="flex items-center justify-center space-x-4 text-sm">
-              <div className="flex items-center space-x-2 text-green-400">
-                <Shield className="w-4 h-4" />
+        <div className="w-100 bg-success bg-opacity-10 border-bottom border-success border-opacity-25">
+          <div className="container-fluid py-2">
+            <div className="d-flex align-items-center justify-content-center gap-4">
+              <div className="d-flex align-items-center text-success">
+                <Shield className="me-2" size={16} />
                 <span>Secure Connection</span>
               </div>
-              <div className="w-1 h-1 rounded-full bg-gray-500"></div>
-              <div className="flex items-center space-x-2 text-cyan-400">
-                <Activity className="w-4 h-4" />
+              <div className="bg-secondary rounded-circle" style={{ width: '4px', height: '4px' }}></div>
+              <div className="d-flex align-items-center text-info">
+                <Activity className="me-2" size={16} />
                 <span>Real-time Data</span>
               </div>
             </div>

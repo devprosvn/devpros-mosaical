@@ -1,6 +1,5 @@
 
 import React from 'react'
-import { Button } from './ui/button'
 import { useWeb3 } from '../contexts/Web3Context'
 import { useLanguage } from '../contexts/LanguageContext'
 import { formatAddress } from '../lib/utils'
@@ -28,35 +27,35 @@ const ConnectWallet: React.FC = () => {
 
   if (!isConnected) {
     return (
-      <Button variant="neon" onClick={handleConnect} className="gap-2">
-        <Wallet className="w-4 h-4" />
+      <button className="cyber-button d-flex align-items-center" onClick={handleConnect}>
+        <Wallet className="me-2" size={16} />
         {t('connectWallet')}
-      </Button>
+      </button>
     )
   }
 
   if (!isCorrectNetwork) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="destructive" onClick={handleNetworkSwitch} className="gap-2 animate-shake">
-          <AlertTriangle className="w-4 h-4" />
+      <div className="d-flex align-items-center gap-2">
+        <button className="btn btn-danger d-flex align-items-center animate-glow" onClick={handleNetworkSwitch}>
+          <AlertTriangle className="me-2" size={16} />
           {t('switchNetwork')}
-        </Button>
-        <Button variant="ghost" onClick={disconnectWallet}>
+        </button>
+        <button className="btn btn-outline-secondary" onClick={disconnectWallet}>
           {t('disconnect')}
-        </Button>
+        </button>
       </div>
     )
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="px-3 py-2 bg-green-500/20 rounded-lg border border-green-500/30">
-        <span className="text-green-400 text-sm font-mono">{formatAddress(account!)}</span>
+    <div className="d-flex align-items-center gap-2">
+      <div className="px-3 py-2 bg-success bg-opacity-25 rounded-3 border border-success border-opacity-50">
+        <span className="text-success font-monospace small">{formatAddress(account!)}</span>
       </div>
-      <Button variant="ghost" onClick={disconnectWallet}>
+      <button className="btn btn-outline-secondary" onClick={disconnectWallet}>
         {t('disconnect')}
-      </Button>
+      </button>
     </div>
   )
 }

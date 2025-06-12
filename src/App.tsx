@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Web3Provider } from './contexts/Web3Context'
@@ -13,21 +14,26 @@ import './i18n'
 function App() {
   useEffect(() => {
     // Enable dark mode by default
-    document.documentElement.classList.add('dark')
+    document.documentElement.setAttribute('data-bs-theme', 'dark')
   }, [])
 
   return (
     <LanguageProvider>
       <Web3Provider>
         <Router>
-          <div className="dark min-h-screen bg-gray-900 text-gray-100">
+          <div className="min-vh-100 bg-dark-custom text-light">
             <Header />
 
-            <div className="glass-card neon-glow text-3xl text-center p-8 mt-8">
-              🚀 <span className="gradient-text text-shadow">Tailwind đang hoạt động!</span> 🚀
-              <button className="cyber-button mt-8">Neon Cyber Button</button>
+            <div className="container-fluid my-4">
+              <div className="glass-card neon-glow text-center p-4">
+                <h1 className="display-4">
+                  🚀 <span className="gradient-text text-shadow">Bootstrap đang hoạt động!</span> 🚀
+                </h1>
+                <button className="cyber-button mt-3">Neon Cyber Button</button>
+              </div>
             </div>
-            <main className="container mx-auto px-4 py-8">
+
+            <main className="container-fluid px-4 py-3">
               <Routes>
                 <Route path="/" element={<Dashboard />} />
                 <Route path="/vault" element={<NFTVault />} />
