@@ -1,0 +1,46 @@
+{
+  "collection_id": "bored-ape-yacht-club",
+  "timestamp": "2025-06-12T13:13:09.762860",
+  "model_performance": {
+    "mae": 1.8148509533250812,
+    "rmse": 2.178801523569969,
+    "r2": 0.36666064233678064
+  },
+  "future_predictions": [
+    {
+      "day": 1,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 2,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 3,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 4,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 5,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 6,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    },
+    {
+      "day": 7,
+      "predicted_price_usd": 21.649785109675996,
+      "predicted_price_dpsv": 2164.9785109675995
+    }
+  ]
+}

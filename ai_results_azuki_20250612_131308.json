@@ -1,0 +1,46 @@
+{
+  "collection_id": "azuki",
+  "timestamp": "2025-06-12T13:13:08.286842",
+  "model_performance": {
+    "mae": 0.6863778923911592,
+    "rmse": 0.7898668890955154,
+    "r2": 0.3413597524986641
+  },
+  "future_predictions": [
+    {
+      "day": 1,
+      "predicted_price_usd": 13.72091525331657,
+      "predicted_price_dpsv": 1372.0915253316568
+    },
+    {
+      "day": 2,
+      "predicted_price_usd": 13.72091525331657,
+      "predicted_price_dpsv": 1372.0915253316568
+    },
+    {
+      "day": 3,
+      "predicted_price_usd": 13.72091525331657,
+      "predicted_price_dpsv": 1372.0915253316568
+    },
+    {
+      "day": 4,
+      "predicted_price_usd": 13.720915253316571,
+      "predicted_price_dpsv": 1372.091525331657
+    },
+    {
+      "day": 5,
+      "predicted_price_usd": 13.720915253316571,
+      "predicted_price_dpsv": 1372.091525331657
+    },
+    {
+      "day": 6,
+      "predicted_price_usd": 13.72091525331657,
+      "predicted_price_dpsv": 1372.0915253316568
+    },
+    {
+      "day": 7,
+      "predicted_price_usd": 13.720915253316571,
+      "predicted_price_dpsv": 1372.091525331657
+    }
+  ]
+}
