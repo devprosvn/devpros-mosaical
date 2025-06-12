@@ -15,7 +15,7 @@ ignorePorts = false
 build = ["sh", "-c", "npm run build"]
 
 [workflows]
-runButton = "Full Stack Dev"
+runButton = "Full Stack + AI"
 
 [[workflows.workflow]]
 name = "Dev Server"
