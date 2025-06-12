@@ -20,7 +20,7 @@ class NFTPredictorFromTXT:
         self.model = None
         self.scaler = StandardScaler()
         self.is_trained = False
-        self.dataset_path = "ai/datasets/"
+        self.dataset_path = "ai/ai/datasets"
         
     def load_txt_dataset(self, txt_file_path):
         """Đọc dataset từ file TXT"""
