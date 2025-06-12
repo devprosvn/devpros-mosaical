@@ -226,11 +226,11 @@ def train_model(collection_id):
 @app.route('/api/predictions/<collection_id>', methods=['GET'])
 def get_predictions(collection_id):
     try:
-        # Map collection_id to filename
+        # Map collection_id to filename (absolute paths from root)
         filename_map = {
             'azuki': 'ai/ai_predictions_azuki_20250612_140242.json',
             'bored-ape-yacht-club': 'ai/ai_predictions_bored-ape-yacht-club_20250612_140242.json',
-            'cryptopunks': 'ai/ai_predictions_azuki_20250612_140242.json'  # Assuming a filename for cryptopunks
+            'cryptopunks': 'ai/ai_predictions_cryptopunks_20250612_140242.json'
         }
 
         filepath = filename_map.get(collection_id)
@@ -286,11 +286,11 @@ def get_all_predictions():
         collections = ['cryptopunks', 'azuki', 'bored-ape-yacht-club']
         all_predictions = {}
 
-        # Map collection_id to filename
+        # Map collection_id to filename (absolute paths from root)
         filename_map = {
             'azuki': 'ai/ai_predictions_azuki_20250612_140242.json',
             'bored-ape-yacht-club': 'ai/ai_predictions_bored-ape-yacht-club_20250612_140242.json',
-            'cryptopunks': 'ai/ai_predictions_azuki_20250612_140242.json'  # Assuming a filename for cryptopunks
+            'cryptopunks': 'ai/ai_predictions_cryptopunks_20250612_140242.json'
         }
 
         for collection in collections:

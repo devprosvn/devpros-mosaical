@@ -50,7 +50,9 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
       // Kiểm tra content type
       const contentType = response.headers.get('content-type')
       if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Response is not JSON format')
+        const text = await response.text()
+        console.error('Non-JSON response:', text)
+        throw new Error(`Response is not JSON format. Got: ${text.substring(0, 100)}...`)
       }
 
       const result = await response.json()
@@ -78,7 +80,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
 
       // Fallback to mock data
       const mockData: ChartDataPoint[] = Array.from({ length: 7 }, (_, i) => ({
-        date: `Day ${index + 1}`,
+        date: `Day ${i + 1}`,
         price: Math.random() * 50 + 50,
         priceDPSV: (Math.random() * 50 + 50) * 100
       }))
