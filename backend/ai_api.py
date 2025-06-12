@@ -19,7 +19,10 @@ sys.path.append('../ai')
 from nft_predictor_from_txt import NFTPredictorFromTXT
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+CORS(app, origins=['http://localhost:3001', 'http://0.0.0.0:3001'])
+
+# Configure JSON encoder để tránh lỗi encoding
+app.config['JSON_AS_ASCII'] = False
 
 class NFTAPIPredictor:
     def __init__(self):
@@ -60,7 +63,7 @@ class NFTAPIPredictor:
             import sys
             sys.path.append('../ai')
             from nft_predictor_from_txt import NFTPredictorFromTXT
-            
+
             predictor = NFTPredictorFromTXT()
             result = predictor.run_prediction_pipeline(collection_id)
             return result is not None
@@ -223,22 +226,23 @@ def train_model(collection_id):
 @app.route('/api/predictions/<collection_id>', methods=['GET'])
 def get_predictions(collection_id):
     try:
-        # Tìm file prediction mới nhất cho collection
-        pattern = f"ai_predictions_{collection_id}_*.json"
-        files = glob.glob(pattern)
-        if not files:
-            # Thử tìm trong thư mục gốc
-            pattern = f"../ai_predictions_{collection_id}_*.json"
-            files = glob.glob(pattern)
+        # Map collection_id to filename
+        filename_map = {
+            'azuki': 'ai/ai_predictions_azuki_20250612_140242.json',
+            'bored-ape-yacht-club': 'ai/ai_predictions_bored-ape-yacht-club_20250612_140242.json',
+            'cryptopunks': 'ai/ai_predictions_azuki_20250612_140242.json'  # Assuming a filename for cryptopunks
+        }
 
-        if not files:
+        filepath = filename_map.get(collection_id)
+        if not filepath:
             return jsonify({'error': f'No predictions found for {collection_id}'}), 404
 
-        # Lấy file mới nhất
-        latest_file = max(files, key=os.path.getctime)
-
-        with open(latest_file, 'r') as f:
-            data = json.load(f)
+        with open(filepath, 'r', encoding='utf-8') as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError as e:
+                logger.error(f"JSONDecodeError: {e}")
+                return jsonify({'error': f'Failed to decode JSON for {collection_id}: {e}'}), 500
 
         return jsonify(data)
     except Exception as e:
@@ -282,19 +286,23 @@ def get_all_predictions():
         collections = ['cryptopunks', 'azuki', 'bored-ape-yacht-club']
         all_predictions = {}
 
-        for collection in collections:
-            try:
-                pattern = f"ai_predictions_{collection}_*.json"
-                files = glob.glob(pattern)
-                if not files:
-                    pattern = f"../ai_predictions_{collection}_*.json"
-                    files = glob.glob(pattern)
+        # Map collection_id to filename
+        filename_map = {
+            'azuki': 'ai/ai_predictions_azuki_20250612_140242.json',
+            'bored-ape-yacht-club': 'ai/ai_predictions_bored-ape-yacht-club_20250612_140242.json',
+            'cryptopunks': 'ai/ai_predictions_azuki_20250612_140242.json'  # Assuming a filename for cryptopunks
+        }
 
-                if files:
-                    latest_file = max(files, key=os.path.getctime)
-                    with open(latest_file, 'r') as f:
-                        data = json.load(f)
-                    all_predictions[collection] = data
+        for collection in collections:
+            filepath = filename_map.get(collection)
+            if not filepath:
+                logger.warning(f"No prediction file defined for {collection}")
+                continue
+
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                all_predictions[collection] = data
             except Exception as e:
                 print(f"Error loading {collection}: {e}")
                 continue
@@ -307,7 +315,7 @@ def get_all_predictions():
 if __name__ == '__main__':
     # Ensure ai_models directory exists
     os.makedirs('../ai_models', exist_ok=True)
-    
+
     # Load existing models on startup
     for collection in api_predictor.collections:
         api_predictor.load_model(collection)

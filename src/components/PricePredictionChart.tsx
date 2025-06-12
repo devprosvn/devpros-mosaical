@@ -29,41 +29,56 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchPredictions = async (collectionId: string) => {
+  const fetchPredictions = async (collection: string) => {
     try {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`http://localhost:5000/predict/future/${collectionId}?days=7`)
+      // Chỉ sử dụng AI API với CORS headers
+      const response = await fetch(`http://localhost:5000/api/predictions/${collection}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
 
       if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`)
+        throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
-      const data: PredictionData = await response.json()
+      // Kiểm tra content type
+      const contentType = response.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Response is not JSON format')
+      }
+
+      const result = await response.json()
+
+      // Handle prediction data
+      const predictions = result.future_predictions || []
+
+      if (!Array.isArray(predictions) || predictions.length === 0) {
+        throw new Error('No prediction data available')
+      }
 
       // Transform data for chart
-      const chartData: ChartDataPoint[] = data.future_dates.map((date, index) => ({
-        date: new Date(date).toLocaleDateString('vi-VN', { 
-          month: 'short', 
-          day: 'numeric' 
-        }),
-        price: data.predicted_prices[index],
-        priceDPSV: data.predicted_prices[index] * 100
+      const data: ChartDataPoint[] = predictions.map((item: any, index: number) => ({
+        date: `Day ${index + 1}`,
+        price: item.predicted_price_usd || 0,
+        priceDPSV: item.predicted_price_dpsv || 0
       }))
 
-      setPredictionData(chartData)
+      setPredictionData(data)
+      setError(null)
 
     } catch (err) {
       console.error('Error fetching predictions:', err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err instanceof Error ? err.message : 'Failed to fetch predictions')
 
       // Fallback to mock data
       const mockData: ChartDataPoint[] = Array.from({ length: 7 }, (_, i) => ({
-        date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', { 
-          month: 'short', 
-          day: 'numeric' 
-        }),
+        date: `Day ${index + 1}`,
         price: Math.random() * 50 + 50,
         priceDPSV: (Math.random() * 50 + 50) * 100
       }))
@@ -129,56 +144,8 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   }
 
   useEffect(() => {
-    const fetchPredictions = async () => {
-      setLoading(true);
-      try {
-        // Thử nhiều URL khác nhau
-        const urls = [
-          `http://localhost:5001/api/predictions/${collection}`,
-          `http://127.0.0.1:5001/api/predictions/${collection}`,
-          `/api/predictions/${collection}`
-        ];
-
-        let response;
-        let lastError;
-
-        for (const url of urls) {
-          try {
-            response = await fetch(url);
-            if (response.ok) break;
-          } catch (err) {
-            lastError = err;
-            continue;
-          }
-        }
-
-        if (!response || !response.ok) {
-          throw new Error(`HTTP error! status: ${response?.status || 'Network error'}`);
-        }
-
-        const data = await response.json();
-
-        // Transform data for chart
-        const chartData: ChartDataPoint[] = data.map((item: any) => ({
-            date: new Date(item.date).toLocaleDateString('vi-VN', {
-              month: 'short',
-              day: 'numeric',
-            }),
-            price: item.predicted_price,
-            priceDPSV: item.predicted_price * 100,
-        }));
-        setPredictionData(chartData);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching predictions:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch predictions');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (collection) {
-      fetchPredictions();
+      fetchPredictions(collection);
     }
   }, [collection]);
 
