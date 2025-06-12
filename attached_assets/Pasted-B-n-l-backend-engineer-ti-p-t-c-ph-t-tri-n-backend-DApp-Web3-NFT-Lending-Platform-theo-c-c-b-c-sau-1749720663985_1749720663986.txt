@@ -1,0 +1,65 @@
+Bạn là backend engineer tiếp tục phát triển backend DApp Web3 NFT Lending Platform theo các bước sau:
+
+Yêu cầu 1: Hoàn thiện API routes
+
+Tạo các route sau trên ExpressJS:
+
+GET /user/:address/nfts: trả về danh sách NFT user sở hữu và trạng thái vault.
+
+GET /user/:address/loans: danh sách loan, health factor, liquidation status.
+
+GET /user/:address/dpo: số DPO token, lịch sử giao dịch.
+
+GET /analytics/collections: tổng hợp giá sàn, utility score, volatility từng collection.
+
+GET /analytics/loans: trạng thái các loan, số lượng loan sắp bị thanh lý, tỷ lệ LTV trung bình.
+
+GET /analytics/yield: dữ liệu yield/lãi suất biến động theo thời gian.
+
+POST /tx/deposit: nhận params NFT, trả về payload transaction cho frontend gửi Metamask.
+
+POST /tx/borrow, /tx/repay, /tx/withdraw, /tx/dpo/transfer: tương tự, tạo tx tương tác contract.
+
+Yêu cầu 2: Xây dựng Indexer Service
+
+Tạo service quét block Saga chainlet qua RPC, lắng nghe sự kiện contract (deposit, loan, repay, DPO...).
+
+Cập nhật DB (PostgreSQL) trạng thái NFT vault, loan, DPO token, user.
+
+Đảm bảo không bỏ lỡ event, retry khi gặp lỗi.
+
+Khi có event mới liên quan user, gửi notif realtime qua Socket.io cho frontend.
+
+Yêu cầu 3: Authentication Middleware
+
+Viết middleware xác thực user bằng Sign-In With Ethereum (SIWE).
+
+Check chữ ký, nonce, reject request nếu không hợp lệ hoặc chưa đăng nhập.
+
+Áp dụng cho các route nhạy cảm (POST/tx/*, GET user data cá nhân).
+
+Yêu cầu 4: Error Handling & Validation
+
+Validate tất cả input (address, số token, chainID...).
+
+Xử lý mọi exception, trả JSON error thống nhất {error: "...", code: ...}.
+
+Log lỗi server và contract call rõ ràng.
+
+Yêu cầu 5: Testing & Deployment
+
+Viết test cho từng API (unit + integration, dùng Jest hoặc Mocha).
+
+Script migration/seed DB cho PostgreSQL.
+
+Dockerfile & scripts để deploy server.
+
+Lưu ý:
+
+Kết nối smart contract trên Saga chainlet, dùng RPC: https://devpros-2749656616387000-1.jsonrpc.sagarpc.io
+
+Ghi rõ chú thích từng hàm, giải thích kỹ validate và logic xử lý.
+
+Tối ưu bảo mật, không lưu private key backend.
+
+Sử dụng TypeScript nếu có thể, đặt tên file và route rõ ràng.
