@@ -234,7 +234,7 @@ classDiagram
         +signMessage()
         +authenticate()
     }
-    
+
     class NFT {
         +String tokenId
         +String contractAddress
@@ -249,7 +249,7 @@ classDiagram
         +withdraw()
         +updateValue()
     }
-    
+
     class Loan {
         +String loanId
         +String userAddress
@@ -265,17 +265,17 @@ classDiagram
         +liquidate()
         +calculateHealthFactor()
     }
-    
+
     class Prediction {
         +String collectionId
-        +Array futurePredictons
+        +Array futurePredictions
         +Object modelPerformance
         +Date timestamp
         +generatePrediction()
         +updateModel()
         +validateAccuracy()
     }
-    
+
     class Transaction {
         +String txHash
         +String userAddress
@@ -287,7 +287,7 @@ classDiagram
         +validateTransaction()
         +updateStatus()
     }
-    
+
     class DPOProject {
         +String projectId
         +String name
@@ -301,14 +301,15 @@ classDiagram
         +invest()
         +closeProject()
     }
-    
-    User ||--o{ NFT : owns
-    User ||--o{ Loan : borrows
-    User ||--o{ Transaction : makes
-    User ||--o{ DPOProject : invests
-    NFT ||--|| Loan : collateralizes
-    Loan ||--o{ Transaction : generates
-    Prediction ||--o{ NFT : predicts
+
+    %% relationships using UML multiplicities
+    User "1" o-- "*" NFT           : owns
+    User "1" o-- "*" Loan          : borrows
+    User "1" o-- "*" Transaction   : makes
+    User "1" o-- "*" DPOProject    : invests
+    NFT  "1" -- "0..1" Loan        : collateralizes
+    Loan "1" o-- "*" Transaction   : generates
+    Prediction "1" o-- "*" NFT     : predicts
 ```
 
 ## 🗃️ Entity Relationship Diagram
