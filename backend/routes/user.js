@@ -1,18 +1,51 @@
-
 const express = require('express')
 const router = express.Router()
 const { validateAddressParam } = require('../middleware/validation')
 const { web3Service } = require('../services/web3Service')
 const logger = require('../utils/logger')
 
+// GET /user/balance - Get user's DPO/DPSV balance
+router.get('/balance', async (req, res) => {
+  try {
+    const { address } = req.query
+
+    if (!address) {
+      return res.status(400).json({
+        error: 'Address is required',
+        code: 'MISSING_ADDRESS'
+      })
+    }
+
+    // Mock DPO balance for now - in production, query the smart contract
+    const mockBalance = Math.random() * 10000 + 1000
+
+    res.json({
+      success: true,
+      data: {
+        address,
+        dpoBalance: mockBalance,
+        dpoEarned: Math.random() * 100,
+        currency: 'DPSV'
+      }
+    })
+
+  } catch (error) {
+    logger.error('Error getting user balance:', error)
+    res.status(500).json({
+      error: 'Failed to get user balance',
+      code: 'GET_BALANCE_ERROR'
+    })
+  }
+})
+
 // GET /user/:address/nfts - Get user's NFTs and vault status
 router.get('/:address/nfts', validateAddressParam, async (req, res) => {
   try {
     const { address } = req.params
-    
+
     // Get user's deposited NFTs from contract
     const deposits = await web3Service.getUserDeposits(address)
-    
+
     // Mock data for demonstration (in production, fetch from DB and external APIs)
     const mockNFTs = [
       {
@@ -40,7 +73,7 @@ router.get('/:address/nfts', validateAddressParam, async (req, res) => {
         canWithdraw: true
       }
     ]
-    
+
     res.json({
       success: true,
       data: {
@@ -50,7 +83,7 @@ router.get('/:address/nfts', validateAddressParam, async (req, res) => {
         totalValue: mockNFTs.reduce((sum, nft) => sum + nft.estimatedValue, 0)
       }
     })
-    
+
   } catch (error) {
     logger.error('Error fetching user NFTs:', error)
     res.status(500).json({
@@ -64,10 +97,10 @@ router.get('/:address/nfts', validateAddressParam, async (req, res) => {
 router.get('/:address/loans', validateAddressParam, async (req, res) => {
   try {
     const { address } = req.params
-    
+
     // Get user's loans from contract
     const loans = await web3Service.getUserLoans(address)
-    
+
     // Add additional computed fields
     const enrichedLoans = loans.map(loan => ({
       ...loan,
@@ -77,7 +110,7 @@ router.get('/:address/loans', validateAddressParam, async (req, res) => {
                 parseFloat(loan.healthFactor) < 1.5 ? 'medium' : 'low',
       status: parseFloat(loan.healthFactor) > 1.0 ? 'active' : 'liquidated'
     }))
-    
+
     res.json({
       success: true,
       data: {
@@ -87,7 +120,7 @@ router.get('/:address/loans', validateAddressParam, async (req, res) => {
         atRiskCount: enrichedLoans.filter(loan => parseFloat(loan.healthFactor) < 1.5).length
       }
     })
-    
+
   } catch (error) {
     logger.error('Error fetching user loans:', error)
     res.status(500).json({
@@ -101,10 +134,10 @@ router.get('/:address/loans', validateAddressParam, async (req, res) => {
 router.get('/:address/dpo', validateAddressParam, async (req, res) => {
   try {
     const { address } = req.params
-    
+
     // Get DPO balance from contract
     const dpoData = await web3Service.getDPOBalance(address)
-    
+
     // Mock transaction history (in production, fetch from DB)
     const mockTransactions = [
       {
@@ -124,7 +157,7 @@ router.get('/:address/dpo', validateAddressParam, async (req, res) => {
         description: 'Transfer to 0x1234...abcd'
       }
     ]
-    
+
     res.json({
       success: true,
       data: {
@@ -135,7 +168,7 @@ router.get('/:address/dpo', validateAddressParam, async (req, res) => {
         apy: 12.5 // Mock APY
       }
     })
-    
+
   } catch (error) {
     logger.error('Error fetching user DPO data:', error)
     res.status(500).json({

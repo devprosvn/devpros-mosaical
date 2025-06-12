@@ -46,7 +46,7 @@ router.post('/deposit', requireAuth, validateTransactionBody, async (req, res) =
   }
 })
 
-// POST /tx/borrow - Create borrow transaction
+// POST /tx/borrow - Create borrow transaction (DPSV)
 router.post('/borrow', requireAuth, validateTransactionBody, async (req, res) => {
   try {
     const { nftContract, tokenId, amount } = req.body
@@ -57,10 +57,10 @@ router.post('/borrow', requireAuth, validateTransactionBody, async (req, res) =>
       "function borrow(address nftContract, uint256 tokenId, uint256 amount) external"
     ]
     
-    const amountWei = (parseFloat(amount) * 1e18).toString() // Convert to wei
+    const amountWei = (parseFloat(amount) * 1e18).toString() // Convert DPSV to wei
     
     const transactionPayload = {
-      to: process.env.LOAN_MANAGER_ADDRESS,
+      to: process.env.LOAN_MANAGER_ADDRESS || '0x29679B0bED366e26468808dbBEfC7cBA65198DBd',
       abi: borrowABI,
       functionName: 'borrow',
       args: [nftContract, tokenId, amountWei],
@@ -69,7 +69,7 @@ router.post('/borrow', requireAuth, validateTransactionBody, async (req, res) =>
       gasPrice: '20000000000'
     }
     
-    logger.info('Created borrow transaction:', { userAddress, nftContract, tokenId, amount })
+    logger.info('Created DPSV borrow transaction:', { userAddress, nftContract, tokenId, amount })
     
     res.json({
       success: true,
@@ -77,7 +77,8 @@ router.post('/borrow', requireAuth, validateTransactionBody, async (req, res) =>
         transactionPayload,
         estimatedGas: '300000',
         type: 'borrow',
-        borrowAmount: amount
+        borrowAmount: amount,
+        currency: 'DPSV'
       }
     })
     
@@ -90,30 +91,29 @@ router.post('/borrow', requireAuth, validateTransactionBody, async (req, res) =>
   }
 })
 
-// POST /tx/repay - Create repay transaction
+// POST /tx/repay - Create repay transaction (DPSV)
 router.post('/repay', requireAuth, validateTransactionBody, async (req, res) => {
   try {
     const { loanId, amount } = req.body
     const userAddress = req.user.address
     
     const repayABI = [
-      "function repay(uint256 loanId, uint256 amount) external payable"
+      "function repayWithDPSV(uint256 loanId, uint256 amount) external"
     ]
     
-    const amountWei = (parseFloat(amount) * 1e18).toString()
+    const amountWei = (parseFloat(amount) * 1e18).toString() // Convert DPSV to wei
     
     const transactionPayload = {
-      to: process.env.LOAN_MANAGER_ADDRESS,
+      to: process.env.LOAN_MANAGER_ADDRESS || '0x29679B0bED366e26468808dbBEfC7cBA65198DBd',
       abi: repayABI,
-      functionName: 'repay',
+      functionName: 'repayWithDPSV',
       args: [loanId, amountWei],
       from: userAddress,
-      value: amountWei, // Send ETH for repayment
       gas: '250000',
       gasPrice: '20000000000'
     }
     
-    logger.info('Created repay transaction:', { userAddress, loanId, amount })
+    logger.info('Created DPSV repay transaction:', { userAddress, loanId, amount })
     
     res.json({
       success: true,
@@ -121,7 +121,8 @@ router.post('/repay', requireAuth, validateTransactionBody, async (req, res) => 
         transactionPayload,
         estimatedGas: '250000',
         type: 'repay',
-        repayAmount: amount
+        repayAmount: amount,
+        currency: 'DPSV'
       }
     })
     
