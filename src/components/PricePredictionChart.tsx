@@ -29,13 +29,21 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   const fetchPredictions = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/predictions/${collectionId}`)
+      console.log(`Fetching predictions for ${collectionId}...`)
+      
+      const response = await fetch(`http://localhost:5000/api/predictions/${collectionId}`)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('Predictions received:', data)
         setPredictions(data.data.predictions || [])
+      } else {
+        console.error('Failed to fetch predictions:', response.status, response.statusText)
       }
     } catch (error) {
       console.error('Failed to fetch predictions:', error)
+      // Set some fallback data if API fails
+      setPredictions([])
     } finally {
       setLoading(false)
     }
@@ -44,7 +52,9 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   const trainModel = async () => {
     try {
       setIsTraining(true)
-      const response = await fetch('/api/predictions/train', {
+      console.log(`Training model for ${collectionId}...`)
+      
+      const response = await fetch('http://localhost:5000/api/predictions/train', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -59,7 +69,12 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
         const data = await response.json()
         console.log('Model trained successfully:', data)
         // Refresh predictions after training
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Small delay
         await fetchPredictions()
+      } else {
+        console.error('Training failed:', response.status, response.statusText)
+        const errorData = await response.json()
+        console.error('Error details:', errorData)
       }
     } catch (error) {
       console.error('Failed to train model:', error)
