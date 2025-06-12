@@ -9,6 +9,7 @@ import NFTVault from './pages/NFTVault'
 import Loans from './pages/Loans'
 import Analytics from './pages/Analytics'
 import DPOPanel from './pages/DPOPanel'
+import { Vault, TrendingUp } from 'lucide-react'
 import './i18n'
 
 function App() {
@@ -25,11 +26,23 @@ function App() {
             <Header />
 
             <div className="container-fluid my-4">
-              <div className="glass-card neon-glow text-center p-4">
-                <h1 className="display-4">
-                  🚀 <span className="gradient-text text-shadow">Bootstrap đang hoạt động!</span> 🚀
+              <div className="glass-card neon-glow text-center p-5">
+                <h1 className="display-4 mb-3">
+                  💎 <span className="gradient-text text-shadow">Unlock Your NFT's Value</span> 💎
                 </h1>
-                <button className="cyber-button mt-3">Neon Cyber Button</button>
+                <p className="lead text-gray-300 mb-4">
+                  Lend against your NFTs, earn yield, and access instant liquidity without selling your precious assets
+                </p>
+                <div className="d-flex justify-content-center gap-3 flex-wrap">
+                  <button className="cyber-button">
+                    <Vault className="me-2" size={20} />
+                    Start Lending
+                  </button>
+                  <button className="btn btn-outline-light btn-lg">
+                    <TrendingUp className="me-2" size={20} />
+                    View Analytics
+                  </button>
+                </div>
               </div>
             </div>
 
