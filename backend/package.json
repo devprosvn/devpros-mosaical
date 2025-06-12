@@ -1,4 +1,3 @@
-
 {
   "name": "mosaical-backend",
   "version": "1.0.0",
@@ -10,21 +9,28 @@
     "migrate": "node scripts/migrate.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
-    "helmet": "^7.1.0",
     "dotenv": "^16.3.1",
     "ethers": "^6.8.1",
-    "pg": "^8.11.3",
-    "socket.io": "^4.7.4",
-    "siwe": "^2.1.4",
+    "express": "^4.18.2",
+    "flask-cors": "^0.0.1",
+    "helmet": "^7.1.0",
     "node-cron": "^3.0.3",
+    "pg": "^8.11.3",
+    "siwe": "^2.1.4",
+    "socket.io": "^4.7.4",
     "winston": "^3.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
   },
-  "keywords": ["nft", "lending", "web3", "saga", "blockchain"],
+  "keywords": [
+    "nft",
+    "lending",
+    "web3",
+    "saga",
+    "blockchain"
+  ],
   "author": "",
   "license": "ISC"
 }
