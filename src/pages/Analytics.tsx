@@ -116,7 +116,7 @@ const Analytics: React.FC = () => {
             <div>
               <p className="text-sm text-gray-400">At Risk</p>
               <p className="text-xl font-bold text-orange-400">12</p>
-              <p className="text-xs text-orange-300">Health factor &lt; 1.5</p>
+              <p className="text-xs text-orange-300">Health factor {'<'} 1.5</p>
             </div>
           </div>
         </Card>
