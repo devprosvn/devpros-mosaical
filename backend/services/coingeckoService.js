@@ -4,8 +4,8 @@ const logger = require('../utils/logger')
 
 class CoinGeckoService {
   constructor() {
-    this.baseURL = 'https://api.coingecko.com/api/v3'
-    this.apiKey = 'CG-1Tc5UJgmUByfTMibYyMMutVD'
+    this.baseURL = process.env.COINGECKO_API_URL || 'https://api.coingecko.com/api/v3'
+    this.apiKey = process.env.COINGECKO_API_KEY
     this.nftCollections = {
       'cryptopunks': 'cryptopunks',
       'azuki': 'azuki',
