@@ -1,29 +1,18 @@
 
 const { Pool } = require('pg')
-const logger = require('../utils/logger')
+require('dotenv').config()
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 })
 
-const connectDB = async () => {
+async function runMigrations() {
+  const client = await pool.connect()
+  
   try {
-    const client = await pool.connect()
-    logger.info('PostgreSQL connected successfully')
+    console.log('Running database migrations...')
     
-    // Run initial migrations
-    await runMigrations(client)
-    client.release()
-    
-  } catch (error) {
-    logger.error('Database connection failed:', error)
-    throw error
-  }
-}
-
-const runMigrations = async (client) => {
-  try {
     // Create tables if they don't exist
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -113,20 +102,7 @@ const runMigrations = async (client) => {
       )
     `)
     
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS analytics_snapshots (
-        id SERIAL PRIMARY KEY,
-        snapshot_date DATE UNIQUE NOT NULL,
-        total_volume DECIMAL(18,8),
-        total_loans INTEGER,
-        average_health_factor DECIMAL(10,4),
-        average_ltv DECIMAL(5,2),
-        collections_data JSONB,
-        yield_data JSONB,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
+    // Create indexes
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_nfts_owner ON nfts(owner_address);
       CREATE INDEX IF NOT EXISTS idx_nfts_deposited ON nfts(deposited);
@@ -136,57 +112,25 @@ const runMigrations = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_events_contract ON events(contract_address);
       CREATE INDEX IF NOT EXISTS idx_events_block ON events(block_number);
     `)
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
     
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS dpo_balances (
-        user_address VARCHAR(42) PRIMARY KEY,
-        balance DECIMAL(18,8) DEFAULT 0,
-        total_earned DECIMAL(18,8) DEFAULT 0,
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id SERIAL PRIMARY KEY,
-        hash VARCHAR(66) UNIQUE NOT NULL,
-        from_address VARCHAR(42),
-        to_address VARCHAR(42),
-        type VARCHAR(50) NOT NULL,
-        amount DECIMAL(18,8),
-        token_address VARCHAR(42),
-        block_number BIGINT,
-        timestamp TIMESTAMP,
-        status VARCHAR(20) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS analytics (
-        id SERIAL PRIMARY KEY,
-        metric_name VARCHAR(100) NOT NULL,
-        metric_value DECIMAL(18,8),
-        metadata JSONB,
-        recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    // Create indexes
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_nfts_owner ON nfts(owner_address)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_loans_user ON loans(user_address)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(hash)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_analytics_metric ON analytics(metric_name, recorded_at)`)
-    
-    logger.info('Database migrations completed')
+    console.log('Database migrations completed successfully!')
     
   } catch (error) {
-    logger.error('Migration failed:', error)
+    console.error('Migration failed:', error)
     throw error
+  } finally {
+    client.release()
+    await pool.end()
   }
 }
 
-module.exports = { pool, connectDB }
+if (require.main === module) {
+  runMigrations()
+    .then(() => process.exit(0))
+    .catch(error => {
+      console.error(error)
+      process.exit(1)
+    })
+}
+
+module.exports = { runMigrations }
