@@ -149,7 +149,7 @@ const Analytics: React.FC = () => {
             <div className="flex-1">
               <p className="text-sm text-gray-400 uppercase tracking-wider">At Risk</p>
               <p className="text-2xl font-bold text-red-400">12</p>
-              <p className="text-xs text-red-300">Health factor under 1.5</p>
+              <p className="text-xs text-red-300">Health factor &lt; 1.5</p>
             </div>
           </div>
         </NeonCard>
