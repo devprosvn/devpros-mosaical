@@ -63,8 +63,15 @@ class NFTPredictorFromTXT:
     
     def get_latest_dataset(self, collection_id):
         """Lấy dataset mới nhất cho collection"""
-        pattern = f"{self.dataset_path}nft_data_{collection_id}_*.txt"
-        files = glob.glob(pattern)
+        # Thử nhiều pattern khác nhau
+        patterns = [
+            f"{self.dataset_path}nft_data_{collection_id}_*.txt",
+            f"ai/datasets/nft_data_{collection_id}_*.txt"
+        ]
+        
+        files = []
+        for pattern in patterns:
+            files.extend(glob.glob(pattern))
         
         if not files:
             print(f"⚠️  Không tìm thấy dataset cho {collection_id}")

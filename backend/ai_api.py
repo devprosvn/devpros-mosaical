@@ -56,6 +56,11 @@ class NFTAPIPredictor:
         """Tự động train model nếu chưa có"""
         try:
             logger.info(f"Auto-training model for {collection_id}...")
+            # Import inside function to avoid circular imports
+            import sys
+            sys.path.append('../ai')
+            from nft_predictor_from_txt import NFTPredictorFromTXT
+            
             predictor = NFTPredictorFromTXT()
             result = predictor.run_prediction_pipeline(collection_id)
             return result is not None
