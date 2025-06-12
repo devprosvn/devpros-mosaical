@@ -1,4 +1,3 @@
-
 const { Pool } = require('pg')
 const logger = require('../utils/logger')
 
@@ -11,11 +10,11 @@ const connectDB = async () => {
   try {
     const client = await pool.connect()
     logger.info('PostgreSQL connected successfully')
-    
+
     // Run initial migrations
     await runMigrations(client)
     client.release()
-    
+
   } catch (error) {
     logger.error('Database connection failed:', error)
     throw error
@@ -33,7 +32,7 @@ const runMigrations = async (client) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS nfts (
         id SERIAL PRIMARY KEY,
@@ -52,7 +51,7 @@ const runMigrations = async (client) => {
         UNIQUE(contract_address, token_id)
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS loans (
         id SERIAL PRIMARY KEY,
@@ -70,7 +69,7 @@ const runMigrations = async (client) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS dpo_balances (
         id SERIAL PRIMARY KEY,
@@ -81,7 +80,7 @@ const runMigrations = async (client) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS dpo_transactions (
         id SERIAL PRIMARY KEY,
@@ -96,7 +95,7 @@ const runMigrations = async (client) => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS events (
         id SERIAL PRIMARY KEY,
@@ -112,7 +111,7 @@ const runMigrations = async (client) => {
         UNIQUE(transaction_hash, log_index)
       )
     `)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS analytics_snapshots (
         id SERIAL PRIMARY KEY,
@@ -126,7 +125,7 @@ const runMigrations = async (client) => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `)
-    
+
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_nfts_owner ON nfts(owner_address);
       CREATE INDEX IF NOT EXISTS idx_nfts_deposited ON nfts(deposited);
@@ -136,53 +135,9 @@ const runMigrations = async (client) => {
       CREATE INDEX IF NOT EXISTS idx_events_contract ON events(contract_address);
       CREATE INDEX IF NOT EXISTS idx_events_block ON events(block_number);
     `)
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS dpo_balances (
-        user_address VARCHAR(42) PRIMARY KEY,
-        balance DECIMAL(18,8) DEFAULT 0,
-        total_earned DECIMAL(18,8) DEFAULT 0,
-        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS transactions (
-        id SERIAL PRIMARY KEY,
-        hash VARCHAR(66) UNIQUE NOT NULL,
-        from_address VARCHAR(42),
-        to_address VARCHAR(42),
-        type VARCHAR(50) NOT NULL,
-        amount DECIMAL(18,8),
-        token_address VARCHAR(42),
-        block_number BIGINT,
-        timestamp TIMESTAMP,
-        status VARCHAR(20) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS analytics (
-        id SERIAL PRIMARY KEY,
-        metric_name VARCHAR(100) NOT NULL,
-        metric_value DECIMAL(18,8),
-        metadata JSONB,
-        recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
-    
-    // Create indexes
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_nfts_owner ON nfts(owner_address)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_loans_user ON loans(user_address)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_transactions_hash ON transactions(hash)`)
-    await client.query(`CREATE INDEX IF NOT EXISTS idx_analytics_metric ON analytics(metric_name, recorded_at)`)
-    
+
     logger.info('Database migrations completed')
-    
+
   } catch (error) {
     logger.error('Migration failed:', error)
     throw error
