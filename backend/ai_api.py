@@ -34,8 +34,13 @@ class NFTAPIPredictor:
             scaler_path = f"../ai_models/nft_scaler_{collection_id}.pkl"
 
             if not os.path.exists(model_path) or not os.path.exists(scaler_path):
-                logger.error(f"Model files not found for {collection_id}")
-                return False
+                logger.warning(f"Model files not found for {collection_id}, attempting to train...")
+                # Tự động train model nếu không tìm thấy
+                if self.auto_train_model(collection_id):
+                    return self.load_model(collection_id)  # Retry loading
+                else:
+                    logger.error(f"Failed to auto-train model for {collection_id}")
+                    return False
 
             self.models[collection_id] = joblib.load(model_path)
             self.scalers[collection_id] = joblib.load(scaler_path)
@@ -45,6 +50,17 @@ class NFTAPIPredictor:
 
         except Exception as e:
             logger.error(f"Error loading model for {collection_id}: {e}")
+            return False
+
+    def auto_train_model(self, collection_id):
+        """Tự động train model nếu chưa có"""
+        try:
+            logger.info(f"Auto-training model for {collection_id}...")
+            predictor = NFTPredictorFromTXT()
+            result = predictor.run_prediction_pipeline(collection_id)
+            return result is not None
+        except Exception as e:
+            logger.error(f"Auto-training failed for {collection_id}: {e}")
             return False
 
     def predict_price(self, collection_id, features):
@@ -284,6 +300,9 @@ def get_all_predictions():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    # Ensure ai_models directory exists
+    os.makedirs('../ai_models', exist_ok=True)
+    
     # Load existing models on startup
     for collection in api_predictor.collections:
         api_predictor.load_model(collection)
