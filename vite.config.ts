@@ -8,7 +8,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5000,
-    allowedHosts: 'all'
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '0.0.0.0',
+      'e7991d75-5935-4129-a804-13e5d957325f-00-61mb5t03trec.pike.replit.dev'
+    ]
   },
   resolve: {
     alias: {
