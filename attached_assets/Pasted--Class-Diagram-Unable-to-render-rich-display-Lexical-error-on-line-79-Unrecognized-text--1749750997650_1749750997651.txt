@@ -1,0 +1,94 @@
+🎨 Class Diagram
+Unable to render rich display
+
+Lexical error on line 79. Unrecognized text.
+... } User ||--o{ NFT : owns
+---------------------^
+
+For more information, see https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams
+
+classDiagram
+    class User {
+        +String address
+        +String nonce
+        +Date createdAt
+        +Date updatedAt
+        +connectWallet()
+        +signMessage()
+        +authenticate()
+    }
+    
+    class NFT {
+        +String tokenId
+        +String contractAddress
+        +String ownerAddress
+        +String collectionName
+        +String tokenName
+        +String tokenUri
+        +Object metadata
+        +Boolean deposited
+        +Number valueEth
+        +deposit()
+        +withdraw()
+        +updateValue()
+    }
+    
+    class Loan {
+        +String loanId
+        +String userAddress
+        +Number nftId
+        +Number borrowedAmount
+        +Number collateralValue
+        +Number interestRate
+        +Number healthFactor
+        +Number ltv
+        +Date createdAt
+        +createLoan()
+        +repayLoan()
+        +liquidate()
+        +calculateHealthFactor()
+    }
+    
+    class Prediction {
+        +String collectionId
+        +Array futurePredictons
+        +Object modelPerformance
+        +Date timestamp
+        +generatePrediction()
+        +updateModel()
+        +validateAccuracy()
+    }
+    
+    class Transaction {
+        +String txHash
+        +String userAddress
+        +String type
+        +Number amount
+        +String status
+        +Date timestamp
+        +processTransaction()
+        +validateTransaction()
+        +updateStatus()
+    }
+    
+    class DPOProject {
+        +String projectId
+        +String name
+        +String description
+        +Number targetAmount
+        +Number raisedAmount
+        +Date startDate
+        +Date endDate
+        +String status
+        +createProject()
+        +invest()
+        +closeProject()
+    }
+    
+    User ||--o{ NFT : owns
+    User ||--o{ Loan : borrows
+    User ||--o{ Transaction : makes
+    User ||--o{ DPOProject : invests
+    NFT ||--|| Loan : collateralizes
+    Loan ||--o{ Transaction : generates
+    Prediction ||--o{ NFT : predicts
