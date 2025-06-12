@@ -1,4 +1,3 @@
-
 const { Pool } = require('pg')
 const logger = require('../utils/logger')
 
@@ -29,7 +28,7 @@ const connectDB = async () => {
 const runMigrations = async (client) => {
   try {
     logger.info('Running database migrations...')
-    
+
     // Create users table
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -152,4 +151,4 @@ const runMigrations = async (client) => {
   }
 }
 
-module.exports = { pool, connectDB }
+module.exports = { pool, connectDB, runMigrations }
