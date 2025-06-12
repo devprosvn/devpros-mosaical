@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -36,13 +35,13 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
       setError(null)
 
       const response = await fetch(`http://localhost:5000/predict/future/${collectionId}?days=7`)
-      
+
       if (!response.ok) {
         throw new Error(`API Error: ${response.status}`)
       }
 
       const data: PredictionData = await response.json()
-      
+
       // Transform data for chart
       const chartData: ChartDataPoint[] = data.future_dates.map((date, index) => ({
         date: new Date(date).toLocaleDateString('vi-VN', { 
@@ -58,7 +57,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
     } catch (err) {
       console.error('Error fetching predictions:', err)
       setError(err instanceof Error ? err.message : 'Unknown error')
-      
+
       // Fallback to mock data
       const mockData: ChartDataPoint[] = Array.from({ length: 7 }, (_, i) => ({
         date: new Date(Date.now() + (i + 1) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', { 
@@ -69,7 +68,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
         priceDPSV: (Math.random() * 50 + 50) * 100
       }))
       setPredictionData(mockData)
-      
+
     } finally {
       setLoading(false)
     }
@@ -93,7 +92,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
 
       const result = await response.json()
       console.log('Training completed:', result)
-      
+
       // Refresh predictions after training
       await fetchPredictions(collection)
 
@@ -108,7 +107,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   const downloadModel = async () => {
     try {
       const response = await fetch(`http://localhost:5000/models/${collection}/download`)
-      
+
       if (!response.ok) {
         throw new Error('Download failed')
       }
@@ -130,8 +129,58 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
   }
 
   useEffect(() => {
-    fetchPredictions(collection)
-  }, [collection])
+    const fetchPredictions = async () => {
+      setLoading(true);
+      try {
+        // Thử nhiều URL khác nhau
+        const urls = [
+          `http://localhost:5001/api/predictions/${collection}`,
+          `http://127.0.0.1:5001/api/predictions/${collection}`,
+          `/api/predictions/${collection}`
+        ];
+
+        let response;
+        let lastError;
+
+        for (const url of urls) {
+          try {
+            response = await fetch(url);
+            if (response.ok) break;
+          } catch (err) {
+            lastError = err;
+            continue;
+          }
+        }
+
+        if (!response || !response.ok) {
+          throw new Error(`HTTP error! status: ${response?.status || 'Network error'}`);
+        }
+
+        const data = await response.json();
+
+        // Transform data for chart
+        const chartData: ChartDataPoint[] = data.map((item: any) => ({
+            date: new Date(item.date).toLocaleDateString('vi-VN', {
+              month: 'short',
+              day: 'numeric',
+            }),
+            price: item.predicted_price,
+            priceDPSV: item.predicted_price * 100,
+        }));
+        setPredictionData(chartData);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching predictions:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch predictions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (collection) {
+      fetchPredictions();
+    }
+  }, [collection]);
 
   return (
     <Card className="glass-card">
@@ -169,7 +218,7 @@ const PricePredictionChart: React.FC<PricePredictionChartProps> = ({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {error && (
           <div className="mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
