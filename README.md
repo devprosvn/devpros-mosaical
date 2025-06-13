@@ -302,14 +302,14 @@ classDiagram
         +closeProject()
     }
 
-    %% relationships using UML multiplicities
-    User "1" o-- "*" NFT           : owns
-    User "1" o-- "*" Loan          : borrows
-    User "1" o-- "*" Transaction   : makes
-    User "1" o-- "*" DPOProject    : invests
-    NFT  "1" -- "0..1" Loan        : collateralizes
-    Loan "1" o-- "*" Transaction   : generates
-    Prediction "1" o-- "*" NFT     : predicts
+    %% relationships using UML multiplicities    
+    User "1" --> "0..*" NFT : owns
+    User "1" --> "0..*" Loan : borrows
+    User "1" --> "0..*" Transaction : makes
+    User "1" --> "0..*" DPOProject : invests
+    NFT "1" --> "0..1" Loan : collateralizes
+    Loan "1" --> "0..*" Transaction : generates
+    Prediction "1" --> "0..*" NFT : predicts
 ```
 
 ## 🗃️ Entity Relationship Diagram
